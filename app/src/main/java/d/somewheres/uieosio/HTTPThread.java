@@ -20,6 +20,7 @@ public class HTTPThread extends Thread {
     String result; //결과값을 저장해 리턴하기위한 변수
     TextView setText; //값을 나타낼 텍스트뷰 id 값
     JSONObject value; //json으로 블록체인 서버에 보낼 값을 저장
+    Search_Json jsonvalue; // json추출을 위한 객체
 
 
     //적용할 url, 나타낼 ui textview, JSONOBject값 입력해 사용 생성자
@@ -70,8 +71,8 @@ public class HTTPThread extends Thread {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            //doInBackground()로 부터 리턴된 값이 onPostExecute()의 매개변수로 넘어오므로 s를 출력한다.
-            setText.setText(s);
+            String trans = jsonvalue.Get_Accout_Public_key(s);
+            setText.setText(trans);
         }
     }
 

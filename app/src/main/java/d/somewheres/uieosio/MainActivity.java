@@ -41,6 +41,7 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -56,20 +57,26 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    Context context;
     private TextView keyvalue; //네비게이션에 키값을 받아와 나타낼수있게하는 텍스트뷰 변수이다.
     ListView listview; //리스트뷰 객체 생성
     ListViewAdapter adapter; //어댑터 생성
     SSHThread sshThread; //ssh를 사용할 쓰레드 선언
     HTTPThread httpThread; //http rest api를 사용할 쓰레드 선언
     JSONObject jsonObject; //jsonObject형식을 저장할수 있는 변수{키:값}
+    private DatabaseHelper DatabaseHelper; //데이터베이스 객체
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
 
         //if문 해서 데이터베이스나 쿠키에 값 잇으면 안나오게 비교문
+        //데이터베이스 작업을 도와주는 객체 생성, db이름은 eos
+        DatabaseHelper = new DatabaseHelper(MainActivity.this,"eos.db",null,1);
+        File file = new File("/data/data/d.somewheres.uieosio/databases/eos.db");
+
         // 바탕화면을클릭시 꺼지는 거 고쳐야함
-        if (true) {
+        if (!file.exists()) {
             AlertDialog.Builder alert = new AlertDialog.Builder(this); //시작할떄다이얼로그 알림
             alert.setTitle("사용자 이름 입력"); //다이얼로그의 내용
             final EditText name = new EditText(this);
@@ -78,8 +85,17 @@ public class MainActivity extends AppCompatActivity
             //확인버튼 클릭시
             alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
+
+                    // (초기접속시) 계정을 생성할때 ssh로 먼저 지갑을 계정이름과 같게 만들고(명령어)
+                    // db에 비밀번호를 저장
+                    // db에 저장된걸로 지갑을 먼저 연다음(명령어)
+                    // 키를 발급받고(명령어)
+                    // 비공개키는 지갑에넣음(명령어) 공개키는 계정생성할때 씀(공개키는 저장)
+                    // (동시에진행)
+                    context = getApplicationContext();
                     String url = "http://124.80.247.31:8888/v1/chain/get_account"; //rest api rul을 지정
                     String username = name.getText().toString(); //username에 사용자가 입력한 값을 얻어옴
+
 
                     //네비게이션 텍스트뷰 id값을 얻어와 거기에 텍스트를 나타냄
                     TextView userID = findViewById(R.id.username);
@@ -94,6 +110,7 @@ public class MainActivity extends AppCompatActivity
                         e.printStackTrace();
                     }
                     //http 연결을 위한 쓰레드 생성
+                    context = getApplicationContext();
                     httpThread = new HTTPThread(url,keyvalue,jsonObject);
                     httpThread.start(); //시작
                     try {
@@ -101,6 +118,10 @@ public class MainActivity extends AppCompatActivity
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    Person person = new Person();
+                    person.setName(name.getText().toString());
+                    person.setName(keyvalue.getText().toString());
+                    DatabaseHelper.addPerson(person);
                     //intent로 메인 액티비티를 새로고침한다.
                     Intent intent = new Intent(MainActivity.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -110,6 +131,8 @@ public class MainActivity extends AppCompatActivity
                 }
             });
             alert.show(); //알림보여줌
+        } else {
+            //(초기접속이 아닐시) 계정이 있으면 안드로이드 로컬db에 저장된 사용자 계정을 꺼내와 rest_api로 비교 키값 받아옴
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -133,6 +156,11 @@ public class MainActivity extends AppCompatActivity
 
 
         //네트워크 생성 파트 버튼클릭시
+        //네트워크를 생성할시 ssh로 지갑을 열고(명령어)
+        //네트워크 계정을 생성할 키를 발급(명령어)
+        //지갑에 키를 넣는다(명령어)
+        //계정을 생성한다(명령어)
+        //abi를 설정한다(명령어)
         Button button = (Button) findViewById(R.id.btn_networkCreate);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -161,6 +189,8 @@ public class MainActivity extends AppCompatActivity
 
 
         //네트워크 참가 파트 버튼 클릭시
+        //1. 관리자측에서 클라이언트 계정이름을 REST API로 GET_ACCOUNT(명령어)를해 계정이름과 공개키를얻어와 SSH로 참가시키는 명령어를 완성해 컨트랙트실행(명령어)
+        //2. 참여자 클라이언트측은 일단은 참가버튼클릭시 get account(명령어)로 네트워크 계정이 존재하면 대기중으로 나타남 이후 관리자가 계정을 참여시키면 사용자로 바뀜(질의할수있는 메소드 생성할것임)
         Button button2 = (Button) findViewById(R.id.btn_networkJoin);
         button2.setOnClickListener(new View.OnClickListener() {
             @Override

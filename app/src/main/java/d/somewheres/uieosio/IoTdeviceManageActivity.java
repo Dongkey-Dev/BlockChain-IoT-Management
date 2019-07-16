@@ -34,6 +34,7 @@ public class IoTdeviceManageActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //미완 IoT장치를 리스트뷰를 추가하기위해 사용할 클릭리스너이다.
+        //1. SSH를 사용해 컨트랙트 실행해 IoT장치 이름으로 넣음(명령어)
         Button button = (Button) findViewById(R.id.IoTappend);
         button.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -41,8 +41,8 @@ public class SSHThread extends Thread {
             config.put("StrictHostKeyChecking", "no");
             JSch jsch = new JSch();
             // Create a JSch session to connect to the server
-            Session session = jsch.getSession("gradeid", "124.80.247.31", 22); //host:ip주소
-            session.setPassword("1q2w3e4r5t");
+            Session session = jsch.getSession("gpc", "211.205.68.69", 22); //host:ip주소
+            session.setPassword("dong2307");
             session.setConfig(config);
             // Establish the connection
             session.connect();
