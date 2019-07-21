@@ -66,16 +66,17 @@ public class MainActivity extends AppCompatActivity
     JSONObject jsonObject; //jsonObject형식을 저장할수 있는 변수{키:값}
     private DatabaseHelper DatabaseHelper; //데이터베이스 객체
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
 
-        //if문 해서 데이터베이스나 쿠키에 값 잇으면 안나오게 비교문
         //데이터베이스 작업을 도와주는 객체 생성, db이름은 eos
         DatabaseHelper = new DatabaseHelper(MainActivity.this,"eos.db",null,1);
         File file = new File("/data/data/d.somewheres.uieosio/databases/eos.db");
 
         // 바탕화면을클릭시 꺼지는 거 고쳐야함
+        // 데이터베이스에 존재하지 않으면 실행
         if (!file.exists()) {
             AlertDialog.Builder alert = new AlertDialog.Builder(this); //시작할떄다이얼로그 알림
             alert.setTitle("사용자 이름 입력"); //다이얼로그의 내용
@@ -86,15 +87,37 @@ public class MainActivity extends AppCompatActivity
             alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
 
-                    // (초기접속시) 계정을 생성할때 ssh로 먼저 지갑을 계정이름과 같게 만들고(명령어)
-                    // db에 비밀번호를 저장
-                    // db에 저장된걸로 지갑을 먼저 연다음(명령어)
-                    // 키를 발급받고(명령어)
-                    // 비공개키는 지갑에넣음(명령어) 공개키는 계정생성할때 씀(공개키는 저장)
-                    // (동시에진행)
+                    //초기설정 메인액티비티 컨택스트, 연결할 eos 체인넷, 사용자가 작성한 이름을 가져옴
                     context = getApplicationContext();
                     String url = "http://124.80.247.31:8888/v1/chain/get_account"; //rest api rul을 지정
                     String username = name.getText().toString(); //username에 사용자가 입력한 값을 얻어옴
+
+                    // (초기접속시) 계정을 생성할때 ssh로 먼저 지갑을 계정이름과 같게 만들고(명령어)
+                    // 패스워드 추출해 줘야합니다.
+                    sshThread = new SSHThread("cleos wallet create --name" + username + "--to-console");
+                    sshThread.start();
+                    try {
+                        sshThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    // db에 비밀번호를 저장
+                    Person person = new Person();
+                    person.setName();
+
+                    // db에 저장된걸로 지갑을 먼저 연다음(명령어)
+                    sshThread = new SSHThread("cleos wallet unlock --" + username + "--password " + person.getPassword());
+                    sshThread.start();
+                    try {
+                        sshThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    // 키를 발급받고(명령어)
+                    // 비공개키는 지갑에넣음(명령어) 공개키는 계정생성할때 씀(공개키는 저장)
+                    // (동시에진행)
 
 
                     //네비게이션 텍스트뷰 id값을 얻어와 거기에 텍스트를 나타냄
@@ -103,12 +126,13 @@ public class MainActivity extends AppCompatActivity
 
                     //키값을 얻어오기위해 뷰의 key id얻어옴
                     keyvalue = findViewById(R.id.keyvalue);
-                    JSONObject jsonObject = new JSONObject(); // post 요청을하기위해 json형식의 변수 생서
+                    jsonObject = new JSONObject(); // post 요청을하기위해 json형식의 변수 생성
                     try {
                         jsonObject.put("account_name",username); //post할 값을 넣어준다
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+
                     //http 연결을 위한 쓰레드 생성
                     context = getApplicationContext();
                     httpThread = new HTTPThread(url,keyvalue,jsonObject);
@@ -118,7 +142,7 @@ public class MainActivity extends AppCompatActivity
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    Person person = new Person();
+
                     person.setName(name.getText().toString());
                     person.setName(keyvalue.getText().toString());
                     DatabaseHelper.addPerson(person);

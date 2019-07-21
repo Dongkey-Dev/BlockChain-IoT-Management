@@ -21,10 +21,18 @@ public class SSHThread extends Thread {
     String result;
     TextView keyvalue;
 
+    //텍스트뷰를 나타내기 위한 생성자
     SSHThread(String m_command, TextView m_keyvalue) {
         Command = m_command;
         this.keyvalue = m_keyvalue;
     }
+
+    //명령어를 단순 실행하기위한 생성자
+    SSHThread(String m_command) {
+        Command = m_command;
+    }
+
+
 
     final Handler handler = new Handler() {
         public void handleMessage(Message msg) {
@@ -32,7 +40,7 @@ public class SSHThread extends Thread {
         }
     };
 
-    public void run() {
+    public void setTextView() {
         ArrayList totalmsg = null;
 
         // String command1 = "ls"; // 여기안에 입력하고자 하는 EOS 명령어
@@ -83,5 +91,64 @@ public class SSHThread extends Thread {
         result = result.substring(10, 15);
         Message msg = handler.obtainMessage();
         handler.sendMessage(msg);
+    }
+
+    public void startcommend() {
+        ArrayList totalmsg = null;
+
+        // String command1 = "ls"; // 여기안에 입력하고자 하는 EOS 명령어
+        try {
+            Properties config = new Properties();
+            config.put("StrictHostKeyChecking", "no");
+            JSch jsch = new JSch();
+            // Create a JSch session to connect to the server
+            Session session = jsch.getSession("gpc", "211.205.68.69", 22); //host:ip주소
+            session.setPassword("dong2307");
+            session.setConfig(config);
+            // Establish the connection
+            session.connect();
+            System.out.println("Connected...");
+
+            ChannelExec channel = (ChannelExec) session
+                    .openChannel("exec");
+            channel.setCommand(Command);
+            channel.setErrStream(System.err);
+
+
+            InputStream in = channel.getInputStream();
+            System.out.println(in);
+            channel.connect();
+            byte[] tmp = new byte[1024];
+            while (true) {
+                while (in.available() > 0) {
+                    int i = in.read(tmp, 0, 1024);
+                    if (i < 0) {
+                        break;
+                    }
+                    System.out.print(new String(tmp, 0, i));
+                    this.result = new String(tmp, 0, i);
+                }
+                if (channel.isClosed()) {
+                    System.out.println("Exit Status: "
+                            + channel.getExitStatus());
+                    break;
+                }
+                Thread.sleep(1000);
+            }
+            channel.disconnect();
+            session.disconnect();
+            System.out.println("DONE!!!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        result = result.substring(10, 15);
+    }
+
+    public void run() {
+        if(keyvalue != null) {
+            setTextView();
+        } else {
+            startcommend();
+        }
     }
 }
