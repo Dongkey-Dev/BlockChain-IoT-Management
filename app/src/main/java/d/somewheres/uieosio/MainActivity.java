@@ -10,6 +10,7 @@ import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -94,6 +95,7 @@ public class MainActivity extends AppCompatActivity
 
                     // (초기접속시) 계정을 생성할때 ssh로 먼저 지갑을 계정이름과 같게 만들고(명령어)
                     // 패스워드 추출해 줘야합니다.
+                    Handler handler = new Handler();
                     sshThread = new SSHThread("cleos wallet create --name" + username + "--to-console");
                     sshThread.start();
                     try {
@@ -102,9 +104,9 @@ public class MainActivity extends AppCompatActivity
                         e.printStackTrace();
                     }
 
-                    // db에 비밀번호를 저장
+                    // db에 비밀번호를 저장 // 추출한 패스워드값 넣어야함
                     Person person = new Person();
-                    person.setName();
+                    person.setPassword();
 
                     // db에 저장된걸로 지갑을 먼저 연다음(명령어)
                     sshThread = new SSHThread("cleos wallet unlock --" + username + "--password " + person.getPassword());
@@ -115,8 +117,23 @@ public class MainActivity extends AppCompatActivity
                         e.printStackTrace();
                     }
 
-                    // 키를 발급받고(명령어)
+                    // 키를 발급받고(명령어) //여기서 프라이빗키(지갑에 넣기위해 얻어옴), 퍼블릭키(저장)를 받아와야한다
+                    sshThread = new SSHThread("cleos create key --to-console");
+                    sshThread.start();
+                    try {
+                        sshThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
                     // 비공개키는 지갑에넣음(명령어) 공개키는 계정생성할때 씀(공개키는 저장)
+                    sshThread = new SSHThread("cleos import -n"+ username + privatekey);
+                    sshThread.start();
+                    try {
+                        sshThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     // (동시에진행)
 
 
@@ -145,7 +162,7 @@ public class MainActivity extends AppCompatActivity
 
                     person.setName(name.getText().toString());
                     person.setName(keyvalue.getText().toString());
-                    DatabaseHelper.addPerson(person);
+                    DatabaseHelper.addPerson(person); // db에 업데이트
                     //intent로 메인 액티비티를 새로고침한다.
                     Intent intent = new Intent(MainActivity.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -156,7 +173,27 @@ public class MainActivity extends AppCompatActivity
             });
             alert.show(); //알림보여줌
         } else {
+
             //(초기접속이 아닐시) 계정이 있으면 안드로이드 로컬db에 저장된 사용자 계정을 꺼내와 rest_api로 비교 키값 받아옴
+            keyvalue = findViewById(R.id.keyvalue);
+            String url = "http://124.80.247.31:8888/v1/chain/get_account"; //rest api rul을 지정
+            jsonObject = new JSONObject(); // post 요청을하기위해 json형식의 변수 생성
+            String username = DatabaseHelper.getPersonname();
+            try {
+                jsonObject.put("account_name",username); //post할 값을 넣어준다
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            httpThread = new HTTPThread(url,keyvalue,jsonObject);
+            httpThread.start(); //시작
+            try {
+                httpThread.join(); //쓰레드 끝날떄까지 멈춤
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Intent intent = new Intent(MainActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);

@@ -1,6 +1,7 @@
 package d.somewheres.uieosio;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -18,7 +19,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
     //db 처음 만들때 호출. - 테이블생성등의 초기 처리
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table eos_tb(_id INTEGER PRIMARY KEY AUTOINCREMENT, name TXET, userkey TEXT);");
+        db.execSQL("create table eos_tb(_id INTEGER PRIMARY KEY AUTOINCREMENT, name TXET, userkey TEXT , passwrod TEXT);");
     }
 
     //db 업그레이드시 필요시 호출 newVersion에 따라 반응
@@ -35,12 +36,31 @@ public class DatabaseHelper extends SQLiteOpenHelper
         // 데이터를 넣는다
         StringBuffer sb = new StringBuffer();
         sb.append(" INSERT INTO eos_tb( ");
-        sb.append(" name, userkey )" );
-        sb.append(" VALUES ( ?, ? ) ");
+        sb.append(" name, userkey, password )" );
+        sb.append(" VALUES ( ?, ?, ? ) ");
 
         db.execSQL(sb.toString(),
                 new Object[]{
                         person.getName(),
-                        person.getUserkey()});;
+                        person.getUserkey(),
+                        person.getPassword()});;
+    }
+
+    public String getPersonpassword() {
+        SQLiteDatabase db = getReadableDatabase();
+
+        // 디비 데이터를 가져온다
+        String sql = "SELECT password FROM eos_tb";
+        Cursor cursor = db.rawQuery(sql, null);
+
+        return cursor.getString(3);
+    }
+
+    public String getPersonname() {
+        SQLiteDatabase db = getReadableDatabase();
+        String sql = "SELECT name FROM eos_tb";
+        Cursor cursor = db.rawQuery(sql, null);
+
+        return cursor.getString(1);
     }
 }

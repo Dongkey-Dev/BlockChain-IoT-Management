@@ -19,7 +19,8 @@ public class SSHThread extends Thread {
     Context context;
     String Command;
     String result;
-    TextView keyvalue;
+    TextView keyvalue = null;
+    String returnset;
 
     //텍스트뷰를 나타내기 위한 생성자
     SSHThread(String m_command, TextView m_keyvalue) {
@@ -34,11 +35,13 @@ public class SSHThread extends Thread {
 
 
 
+
     final Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             keyvalue.setText(result);
         }
     };
+
 
     public void setTextView() {
         ArrayList totalmsg = null;
@@ -93,7 +96,7 @@ public class SSHThread extends Thread {
         handler.sendMessage(msg);
     }
 
-    public void startcommend() {
+    public void startcommand() {
         ArrayList totalmsg = null;
 
         // String command1 = "ls"; // 여기안에 입력하고자 하는 EOS 명령어
@@ -148,7 +151,7 @@ public class SSHThread extends Thread {
         if(keyvalue != null) {
             setTextView();
         } else {
-            startcommend();
+            startcommand();
         }
     }
 }
