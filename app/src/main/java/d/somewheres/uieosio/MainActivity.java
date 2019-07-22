@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity
     HTTPThread httpThread; //http rest api를 사용할 쓰레드 선언
     JSONObject jsonObject; //jsonObject형식을 저장할수 있는 변수{키:값}
     private DatabaseHelper DatabaseHelper; //데이터베이스 객체
+    String tmpdata1, tmpdata2; //네트워크 연결로 받아온 데이터를 저장할 변수
 
 
     @Override
@@ -90,13 +91,12 @@ public class MainActivity extends AppCompatActivity
 
                     //초기설정 메인액티비티 컨택스트, 연결할 eos 체인넷, 사용자가 작성한 이름을 가져옴
                     context = getApplicationContext();
-                    String url = "http://124.80.247.31:8888/v1/chain/get_account"; //rest api rul을 지정
+                    String url = "http://192.168.0.12:8888/v1/chain/get_account"; //rest api rul을 지정
                     String username = name.getText().toString(); //username에 사용자가 입력한 값을 얻어옴
 
                     // (초기접속시) 계정을 생성할때 ssh로 먼저 지갑을 계정이름과 같게 만들고(명령어)
-                    // 패스워드 추출해 줘야합니다.
-                    Handler handler = new Handler();
-                    sshThread = new SSHThread("cleos wallet create --name" + username + "--to-console");
+                    // tmp1변수에 패스워드 추출해 줘야합니다.
+                    sshThread = new SSHThread(1,"cleos wallet create -n " + username + " --to-console");
                     sshThread.start();
                     try {
                         sshThread.join();
@@ -106,10 +106,10 @@ public class MainActivity extends AppCompatActivity
 
                     // db에 비밀번호를 저장 // 추출한 패스워드값 넣어야함
                     Person person = new Person();
-                    person.setPassword();
+                    person.setPassword(tmpdata1);
 
                     // db에 저장된걸로 지갑을 먼저 연다음(명령어)
-                    sshThread = new SSHThread("cleos wallet unlock --" + username + "--password " + person.getPassword());
+                    sshThread = new SSHThread("cleos wallet unlock --" + username + "--password " + tmpdata1);
                     sshThread.start();
                     try {
                         sshThread.join();
@@ -118,16 +118,16 @@ public class MainActivity extends AppCompatActivity
                     }
 
                     // 키를 발급받고(명령어) //여기서 프라이빗키(지갑에 넣기위해 얻어옴), 퍼블릭키(저장)를 받아와야한다
-                    sshThread = new SSHThread("cleos create key --to-console");
+                    sshThread = new SSHThread(2,"cleos create key --to-console");
                     sshThread.start();
                     try {
                         sshThread.join();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-
+                    String privatekey = tmpdata1;
                     // 비공개키는 지갑에넣음(명령어) 공개키는 계정생성할때 씀(공개키는 저장)
-                    sshThread = new SSHThread("cleos import -n"+ username + privatekey);
+                    sshThread = new SSHThread("cleos import -n "+ username + " " + privatekey);
                     sshThread.start();
                     try {
                         sshThread.join();
@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity
 
             //(초기접속이 아닐시) 계정이 있으면 안드로이드 로컬db에 저장된 사용자 계정을 꺼내와 rest_api로 비교 키값 받아옴
             keyvalue = findViewById(R.id.keyvalue);
-            String url = "http://124.80.247.31:8888/v1/chain/get_account"; //rest api rul을 지정
+            String url = "http://192.168.0.12:8888/v1/chain/get_account"; //rest api rul을 지정
             jsonObject = new JSONObject(); // post 요청을하기위해 json형식의 변수 생성
             String username = DatabaseHelper.getPersonname();
             try {
@@ -338,5 +338,87 @@ public class MainActivity extends AppCompatActivity
         return true;
 
     }
+    public class SSHThread extends Thread {
+        Context context;
+        String Command;
+        String result;
+        int trigger=0; //서브스트링을 구분하기위한 트리거, 0이면 기본 명령값
 
+        //텍스트뷰를 나타내기 위한 생성자
+
+
+        //명령어를 단순 실행하기위한 생성자
+        SSHThread(String m_command) {
+            Command = m_command;
+        }
+
+        SSHThread(int trigger,String m_command) {
+            this.trigger = trigger;
+            Command = m_command;
+        }
+
+
+
+
+        public void startcommand() {
+            ArrayList totalmsg = null;
+
+            // String command1 = "ls"; // 여기안에 입력하고자 하는 EOS 명령어
+            try {
+                Properties config = new Properties();
+                config.put("StrictHostKeyChecking", "no");
+                JSch jsch = new JSch();
+                // Create a JSch session to connect to the server
+                Session session = jsch.getSession("gpc", "192.168.0.12", 22); //host:ip주소
+                session.setPassword("1q2w3e4r");
+                session.setConfig(config);
+                // Establish the connection
+                session.connect();
+                System.out.println("Connected...");
+
+                ChannelExec channel = (ChannelExec) session
+                        .openChannel("exec");
+                channel.setCommand(Command);
+                channel.setErrStream(System.err);
+
+
+                InputStream in = channel.getInputStream();
+                System.out.println(in);
+                channel.connect();
+                byte[] tmp = new byte[1024];
+                while (true) {
+                    while (in.available() > 0) {
+                        int i = in.read(tmp, 0, 1024);
+                        if (i < 0) {
+                            break;
+                        }
+                        System.out.print(new String(tmp, 0, i));
+                        this.result = new String(tmp, 0, i);
+                    }
+                    if (channel.isClosed()) {
+                        System.out.println("Exit Status: "
+                                + channel.getExitStatus());
+                        break;
+                    }
+                    Thread.sleep(1000);
+                }
+                channel.disconnect();
+                session.disconnect();
+                System.out.println("DONE!!!");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (trigger == 0) {
+                //지갑 계정 생성후 패스워드 가져오기
+            } else if (trigger == 1) {
+                tmpdata1 = result.substring(10, 15);
+            } else if (trigger == 2) {
+                tmpdata1 = result.substring(12, 65);
+                tmpdata2 = result.substring(76, 129);
+            }
+        }
+        public void run() {
+                startcommand();
+        }
+    }
 }

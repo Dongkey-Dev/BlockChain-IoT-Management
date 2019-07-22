@@ -31,13 +31,6 @@ public class HTTPThread extends Thread {
 
     }
 
-    //보안관계상 사용하는 핸들러
-    final Handler handler = new Handler() {
-        public void handleMessage(Message msg) {
-            setText.setText(result);
-        }
-    };
-
     //쓰레드 실행시 실행
     public void run() {
 

@@ -19,7 +19,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
     //db 처음 만들때 호출. - 테이블생성등의 초기 처리
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table eos_tb(_id INTEGER PRIMARY KEY AUTOINCREMENT, name TXET, userkey TEXT , passwrod TEXT);");
+        db.execSQL("create table eos_tb(_id INTEGER PRIMARY KEY AUTOINCREMENT, name TXET, userkey TEXT , password TEXT);");
     }
 
     //db 업그레이드시 필요시 호출 newVersion에 따라 반응
