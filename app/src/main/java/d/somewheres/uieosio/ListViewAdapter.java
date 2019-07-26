@@ -1,6 +1,8 @@
 package d.somewheres.uieosio;
 
+import android.content.ContentUris;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -81,5 +83,20 @@ public class ListViewAdapter extends BaseAdapter {
         item.setaccount(account);
 
         listViewItemList.add(item);
+    }
+
+    //cursor를 이용해서 리스트뷰에 아이템 추가
+    public void addItem(Drawable icon, Cursor cursor) {
+
+        while (cursor.moveToNext()) {
+            ListViewnetworkItem item = new ListViewnetworkItem();
+            item.setIcon(icon);
+            item.setTitle(cursor.getString(1));
+            item.setDesc(cursor.getString(2));
+            item.setaccount(cursor.getString(3));
+
+            listViewItemList.add(item);
+        }
+        cursor.close();
     }
 }

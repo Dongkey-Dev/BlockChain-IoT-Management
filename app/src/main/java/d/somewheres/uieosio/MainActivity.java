@@ -5,12 +5,15 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.ContactsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -58,8 +61,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private BackPressCloseHandler backPressCloseHandler;
     Context context;
-    private TextView keyvalue; //네비게이션에 키값을 받아와 나타낼수있게하는 텍스트뷰 변수이다.
     ListView listview; //리스트뷰 객체 생성
     ListViewAdapter adapter; //어댑터 생성
     SSHThread sshThread; //ssh를 사용할 쓰레드 선언
@@ -67,19 +70,24 @@ public class MainActivity extends AppCompatActivity
     JSONObject jsonObject; //jsonObject형식을 저장할수 있는 변수{키:값}
     private DatabaseHelper DatabaseHelper; //데이터베이스 객체
     String tmpdata1, tmpdata2; //네트워크 연결로 받아온 데이터를 저장할 변수
+    String username;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
 
 
         //데이터베이스 작업을 도와주는 객체 생성, db이름은 eos
-        DatabaseHelper = new DatabaseHelper(MainActivity.this,"eos.db",null,1);
         File file = new File("/data/data/d.somewheres.uieosio/databases/eos.db");
 
         // 바탕화면을클릭시 꺼지는 거 고쳐야함
         // 데이터베이스에 존재하지 않으면 실행
         if (!file.exists()) {
+            DatabaseHelper = new DatabaseHelper(MainActivity.this,"eos.db",null,1);
+
             AlertDialog.Builder alert = new AlertDialog.Builder(this); //시작할떄다이얼로그 알림
             alert.setTitle("사용자 이름 입력"); //다이얼로그의 내용
             final EditText name = new EditText(this);
@@ -92,7 +100,7 @@ public class MainActivity extends AppCompatActivity
                     //초기설정 메인액티비티 컨택스트, 연결할 eos 체인넷, 사용자가 작성한 이름을 가져옴
                     context = getApplicationContext();
                     String url = "http://192.168.0.12:8888/v1/chain/get_account"; //rest api rul을 지정
-                    String username = name.getText().toString(); //username에 사용자가 입력한 값을 얻어옴
+                    username = name.getText().toString(); //username에 사용자가 입력한 값을 얻어옴
 
                     // (초기접속시) 계정을 생성할때 ssh로 먼저 지갑을 계정이름과 같게 만들고(명령어)
                     // tmp1변수에 패스워드 추출해 줘야합니다.
@@ -109,7 +117,7 @@ public class MainActivity extends AppCompatActivity
                     person.setPassword(tmpdata1);
 
                     // db에 저장된걸로 지갑을 먼저 연다음(명령어)
-                    sshThread = new SSHThread("cleos wallet unlock --" + username + "--password " + tmpdata1);
+                    sshThread = new SSHThread("cleos wallet unlock --name " + username + " --password " + tmpdata1);
                     sshThread.start();
                     try {
                         sshThread.join();
@@ -126,8 +134,26 @@ public class MainActivity extends AppCompatActivity
                         e.printStackTrace();
                     }
                     String privatekey = tmpdata1;
+                    String publickey = tmpdata2;
                     // 비공개키는 지갑에넣음(명령어) 공개키는 계정생성할때 씀(공개키는 저장)
-                    sshThread = new SSHThread("cleos import -n "+ username + " " + privatekey);
+                    sshThread = new SSHThread("cleos wallet import -n "+ username + " --private-key " + privatekey);
+                    sshThread.start();
+                    try {
+                        sshThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    // eosio 스태틱값 넣음
+                    sshThread = new SSHThread("cleos wallet import -n "+ username + " --private-key 5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
+                    sshThread.start();
+                    try {
+                        sshThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    //계정생성
+                    sshThread = new SSHThread("cleos create account eosio "+ username + " " + publickey + " " + publickey);
                     sshThread.start();
                     try {
                         sshThread.join();
@@ -138,30 +164,18 @@ public class MainActivity extends AppCompatActivity
 
 
                     //네비게이션 텍스트뷰 id값을 얻어와 거기에 텍스트를 나타냄
-                    TextView userID = findViewById(R.id.username);
+                    TextView userID = (TextView) findViewById(R.id.username);
                     userID.setText(username);
 
                     //키값을 얻어오기위해 뷰의 key id얻어옴
-                    keyvalue = findViewById(R.id.keyvalue);
-                    jsonObject = new JSONObject(); // post 요청을하기위해 json형식의 변수 생성
-                    try {
-                        jsonObject.put("account_name",username); //post할 값을 넣어준다
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    TextView keyvalue = (TextView) findViewById(R.id.keyvalue);
+                    keyvalue.setText(tmpdata2);
 
                     //http 연결을 위한 쓰레드 생성
                     context = getApplicationContext();
-                    httpThread = new HTTPThread(url,keyvalue,jsonObject);
-                    httpThread.start(); //시작
-                    try {
-                        httpThread.join(); //쓰레드 끝날떄까지 멈춤
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
 
                     person.setName(name.getText().toString());
-                    person.setName(keyvalue.getText().toString());
+                    person.setUserkey(keyvalue.getText().toString());
                     DatabaseHelper.addPerson(person); // db에 업데이트
                     //intent로 메인 액티비티를 새로고침한다.
                     Intent intent = new Intent(MainActivity.this, MainActivity.class);
@@ -173,36 +187,48 @@ public class MainActivity extends AppCompatActivity
             });
             alert.show(); //알림보여줌
         } else {
+            DatabaseHelper = new DatabaseHelper(MainActivity.this,"eos.db",null,1);
 
             //(초기접속이 아닐시) 계정이 있으면 안드로이드 로컬db에 저장된 사용자 계정을 꺼내와 rest_api로 비교 키값 받아옴
-            keyvalue = findViewById(R.id.keyvalue);
-            String url = "http://192.168.0.12:8888/v1/chain/get_account"; //rest api rul을 지정
-            jsonObject = new JSONObject(); // post 요청을하기위해 json형식의 변수 생성
+
+            //db세팅
+
             String username = DatabaseHelper.getPersonname();
+            String userkey = DatabaseHelper.getPersonkey();
+            String userpassword = DatabaseHelper.getPersonpassword();
+
+            //화면에보이는 유저이름과 공용키 설정(오류로 다시...)
+
+
+            setContentView(R.layout.activity_main);
+            //ssh로 지갑 열기
+            sshThread = new SSHThread("cleos wallet unlock --name " + username + " --password " + userpassword);
+            sshThread.start();
             try {
-                jsonObject.put("account_name",username); //post할 값을 넣어준다
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            httpThread = new HTTPThread(url,keyvalue,jsonObject);
-            httpThread.start(); //시작
-            try {
-                httpThread.join(); //쓰레드 끝날떄까지 멈춤
+                sshThread.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
             Intent intent = new Intent(MainActivity.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
         }
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
+        //db에서 네트워크목록을 가져오는파트
         //네트워크 목록을 나타내기위한 리스트뷰 및 어댑터 장착
         adapter = new ListViewAdapter();
         listview = (ListView) findViewById(R.id.listview1);
-        listview.setAdapter(adapter);
 
+        Cursor cursor = DatabaseHelper.networkitem();
+
+        adapter.addItem(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_menu_camera),cursor);
+        if(cursor.getCount() > 0) {
+            TextView NetworkNolist = (TextView)findViewById(R.id.NetworkNolist);
+            NetworkNolist.setVisibility(View.GONE);
+        }
+        adapter.notifyDataSetChanged();
+        listview.setAdapter(adapter);
         //아이템 클릭시 그 네트워크의 ioT및 사용자를 관리할수있는 액티비티로 전환 및 값을 넘겨준다
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -217,11 +243,6 @@ public class MainActivity extends AppCompatActivity
 
 
         //네트워크 생성 파트 버튼클릭시
-        //네트워크를 생성할시 ssh로 지갑을 열고(명령어)
-        //네트워크 계정을 생성할 키를 발급(명령어)
-        //지갑에 키를 넣는다(명령어)
-        //계정을 생성한다(명령어)
-        //abi를 설정한다(명령어)
         Button button = (Button) findViewById(R.id.btn_networkCreate);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -231,8 +252,64 @@ public class MainActivity extends AppCompatActivity
                 customDialog.setDialogListener(new CustomDialog.CustomDialogListener() {
                     @Override
                     public void onPositiveClicked(String name, String desc) {
-                        //확인 클릭시 리스트뷰에 각각 내용을 넣어주고 새로고침한다.
+                        DatabaseHelper = new DatabaseHelper(MainActivity.this,"eos.db",null,1);
                         String account = "관리자";
+
+
+                        //db세팅
+
+                        String username = DatabaseHelper.getPersonname();
+                        String userkey = DatabaseHelper.getPersonkey();
+                        String userpassword = DatabaseHelper.getPersonpassword();
+
+                        Network network = new Network();
+                        network.setName(name);
+                        network.setDesc(desc);
+                        network.setAccount(account);
+                        DatabaseHelper.addNetworklist(network);
+
+                        //네트워크를 생성할시 ssh로 지갑을 열고(명령어)
+                        sshThread = new SSHThread("cleos wallet unlock --name " + username + " --password " + userpassword);
+                        sshThread.start();
+                        try {
+                            sshThread.join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        //네트워크 계정을 생성할 키를 발급(명령어)
+                        sshThread = new SSHThread(2,"cleos create key --to-console");
+                        sshThread.start();
+                        try {
+                            sshThread.join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        String privatekey = tmpdata1;
+                        String publickey = tmpdata2;
+
+                        //지갑에 키를 넣는다(명령어)
+                        sshThread = new SSHThread("cleos wallet import -n "+ username + " --private-key " + privatekey);
+                        sshThread.start();
+                        try {
+                            sshThread.join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        //네트워크 이름을 넘겨받은 계정을 생성한다(명령어)
+                        sshThread = new SSHThread("cleos create account eosio "+ name + " " + publickey + " " + publickey);
+                        sshThread.start();
+                        try {
+                            sshThread.join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        //abi를 설정한다(명령어)
+
+
                         TextView NetworkNolist = (TextView)findViewById(R.id.NetworkNolist);
                         NetworkNolist.setVisibility(View.GONE);
                         adapter.addItem(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_menu_camera), name, desc, account);
@@ -276,7 +353,6 @@ public class MainActivity extends AppCompatActivity
                 customDialog.show();
             }
         });
-
         //메인액티비티의 제목 및 네비게이션을 할수있는 상단의 툴바
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -287,8 +363,10 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+        backPressCloseHandler = new BackPressCloseHandler(this);
 
     }
+
 
     //아래 내용은 네비게이션에 관한것
     @Override
@@ -297,7 +375,8 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            //super.onBackPressed();
+            backPressCloseHandler.onBackPressed();
         }
     }
 
@@ -409,12 +488,14 @@ public class MainActivity extends AppCompatActivity
                 e.printStackTrace();
             }
             if (trigger == 0) {
-                //지갑 계정 생성후 패스워드 가져오기
+                //명령어만 입력시 실행만
             } else if (trigger == 1) {
-                tmpdata1 = result.substring(10, 15);
+                //지갑을 생성하는 명령어, 패스워드 리턴
+                tmpdata1 = result.substring(133 + username.length(), 186 + username.length());
             } else if (trigger == 2) {
-                tmpdata1 = result.substring(12, 65);
-                tmpdata2 = result.substring(76, 129);
+                //키를 생성해 프라이빗키와 퍼블릭키를 리턴
+                tmpdata1 = result.substring(12, 66);
+                tmpdata2 = result.substring(77, 130);
             }
         }
         public void run() {
