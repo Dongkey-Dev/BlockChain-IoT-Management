@@ -308,7 +308,13 @@ public class MainActivity extends AppCompatActivity
 
 
                         //abi를 설정한다(명령어)
-
+                        sshThread = new SSHThread("cleos set contract " + name + " /home/gpc/contracts/polman --abi polman.abi -p " + name + "@active");
+                        sshThread.start();
+                        try {
+                            sshThread.join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
 
                         TextView NetworkNolist = (TextView)findViewById(R.id.NetworkNolist);
                         NetworkNolist.setVisibility(View.GONE);
