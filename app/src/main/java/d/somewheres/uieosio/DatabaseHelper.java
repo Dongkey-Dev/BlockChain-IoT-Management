@@ -161,4 +161,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(sb.toString(), null);
         return cursor;
     }
+
+    //사용자관리 파트 부분
+    public void adduserlist(User user) {
+        String name = user.getName();
+        SQLiteDatabase db = getWritableDatabase();
+
+        // 데이터를 넣는다
+        String sql = String.format("INSERT INTO user_tb(USERNAME) VALUES('" + name + "');");
+        db.execSQL(sql);
+
+    }
+
+    public Cursor useritem() {
+        SQLiteDatabase db = getReadableDatabase();
+        StringBuffer sb = new StringBuffer();
+        sb.append("SELECT * FROM user_tb");
+        Cursor cursor = db.rawQuery(sb.toString(), null);
+        return cursor;
+    }
 }

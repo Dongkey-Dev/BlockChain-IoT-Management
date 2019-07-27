@@ -6,29 +6,26 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:id="@+id/imageView2"
-        android:layout_weight="1"/>
-
+        android:id="@+id/imageView3"
+        android:layout_weight="1" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="New Text"
-            android:id="@+id/textView3"
+            android:id="@+id/usertitle"
             android:textSize="24dp"
             android:textColor="#000000"
             android:gravity="center_vertical"
-            android:layout_weight="2"
-            />
+            android:layout_weight="2" />
 
 
     <Button
-        android:id="@+id/iotbutton"
+        android:id="@+id/userbutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="삭제"/>
-
-
+        android:text="삭제"
+        android:textSize="18dp" />
 
 </LinearLayout>

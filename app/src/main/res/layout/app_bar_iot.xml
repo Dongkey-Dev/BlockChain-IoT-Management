@@ -27,9 +27,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Network Title"
+                android:text="IoT 장치 관리"
                 android:layout_gravity="center"
-                android:id="@+id/toolbar_title3"
+                android:id="@+id/iot_toolbar_title"
                 android:textSize="20dp"
                 android:textColor="@color/colorPrimaryDark"
                 />

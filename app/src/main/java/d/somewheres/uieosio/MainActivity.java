@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity
 
         Cursor cursor = DatabaseHelper.networkitem();
 
-        adapter.addItem(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_menu_camera),cursor);
+        adapter.addItem(ContextCompat.getDrawable(MainActivity.this, R.drawable.network),cursor);
         if(cursor.getCount() > 0) {
             TextView NetworkNolist = (TextView)findViewById(R.id.NetworkNolist);
             NetworkNolist.setVisibility(View.GONE);
@@ -318,7 +318,7 @@ public class MainActivity extends AppCompatActivity
 
                         TextView NetworkNolist = (TextView)findViewById(R.id.NetworkNolist);
                         NetworkNolist.setVisibility(View.GONE);
-                        adapter.addItem(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_menu_camera), name, desc, account);
+                        adapter.addItem(ContextCompat.getDrawable(MainActivity.this, R.drawable.network), name, desc, account);
                         adapter.notifyDataSetChanged();
                     }
 

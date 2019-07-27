@@ -36,15 +36,15 @@
             android:gravity="center"
             android:textSize="24dp"
             android:text="최근 조작 내역이 없습니다"/>
+
         <ListView
             android:id="@+id/listview2"
-            android:layout_width="351dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:dividerHeight="4dp"
-            android:divider="#ffffff">
-        </ListView>
+            android:divider="#ffffff"
+            android:dividerHeight="4dp"></ListView>
     </FrameLayout>
     <View style="@style/Divider"/>
     <LinearLayout

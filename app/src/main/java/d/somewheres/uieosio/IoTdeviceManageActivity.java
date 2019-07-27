@@ -38,7 +38,7 @@ public class IoTdeviceManageActivity extends AppCompatActivity {
         adapter = new ListViewAdapterIoT();
         listview = (ListView) findViewById(R.id.ioT_listview);
         Cursor cursor = DatabaseHelper.iotitem();
-        adapter.addItem(ContextCompat.getDrawable(IoTdeviceManageActivity.this, R.drawable.ic_menu_camera),cursor);
+        adapter.addItem(ContextCompat.getDrawable(IoTdeviceManageActivity.this, R.drawable.iot),cursor);
         if(cursor.getCount() > 0) {
             TextView IoTNolist = (TextView)findViewById(R.id.IoTNolist);
             IoTNolist.setVisibility(View.GONE);
@@ -67,7 +67,7 @@ public class IoTdeviceManageActivity extends AppCompatActivity {
                 //목록은 리스트뷰에 추가한다
                 TextView IoTNolist = (TextView)findViewById(R.id.IoTNolist);
                 IoTNolist.setVisibility(View.GONE);
-                adapter.addItem(ContextCompat.getDrawable(IoTdeviceManageActivity.this, R.drawable.ic_menu_camera), iotname);
+                adapter.addItem(ContextCompat.getDrawable(IoTdeviceManageActivity.this, R.drawable.iot), iotname);
                 adapter.notifyDataSetChanged();
 
                 //db에 저장한다.
