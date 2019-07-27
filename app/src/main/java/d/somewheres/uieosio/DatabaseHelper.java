@@ -40,6 +40,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         tb.append(" ACCOUNT TEXT ) ");
         db.execSQL(tb.toString());
 
+        //iot 리스트 테이블
+        StringBuffer cb = new StringBuffer();
+        cb.append(" CREATE TABLE if not exists iot_tb ( ");
+        cb.append(" _ID INTEGER PRIMARY KEY AUTOINCREMENT, ");
+        cb.append(" IOTNAME TEXT ) ");
+        db.execSQL(cb.toString());
+
+        //사용자 리스트 테이블
+        StringBuffer lb = new StringBuffer();
+        lb.append(" CREATE TABLE if not exists user_tb ( ");
+        lb.append(" _ID INTEGER PRIMARY KEY AUTOINCREMENT, ");
+        lb.append(" USERNAME TEXT ) ");
+        db.execSQL(lb.toString());
 
     }
 
@@ -127,6 +140,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         StringBuffer sb = new StringBuffer();
         sb.append("SELECT * FROM network_tb");
+        Cursor cursor = db.rawQuery(sb.toString(), null);
+        return cursor;
+    }
+
+    //iot관리 파트 부분
+    public void addIoTlist(IoT iot) {
+        String name = iot.getName();
+        SQLiteDatabase db = getWritableDatabase();
+
+        // 데이터를 넣는다
+        String sql = String.format("INSERT INTO iot_tb(IOTNAME) VALUES('" + name + "');");
+        db.execSQL(sql);
+
+    }
+    public Cursor iotitem() {
+        SQLiteDatabase db = getReadableDatabase();
+        StringBuffer sb = new StringBuffer();
+        sb.append("SELECT * FROM iot_tb");
         Cursor cursor = db.rawQuery(sb.toString(), null);
         return cursor;
     }

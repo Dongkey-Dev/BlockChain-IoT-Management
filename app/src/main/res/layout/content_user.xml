@@ -63,7 +63,8 @@
         android:text="사용자목록" />
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="394dp">
+        android:layout_height="394dp"
+        android:background="@drawable/border">
         <TextView
             android:id="@+id/controllist"
             android:layout_width="match_parent"

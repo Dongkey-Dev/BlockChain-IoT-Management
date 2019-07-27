@@ -1,6 +1,7 @@
 package d.somewheres.uieosio;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +43,6 @@ public class ListViewAdapterIoT extends BaseAdapter {
         // 화면에 표시될 View(Layout이 inflate된)으로부터 위젯에 대한 참조 획득
         ImageView iconImageView = (ImageView) convertView.findViewById(R.id.imageView2) ;
         TextView titleTextView = (TextView) convertView.findViewById(R.id.textView3) ;
-        TextView descTextView = (TextView) convertView.findViewById(R.id.textView4) ;
 
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
         ListViewIoTItem listViewItem = listViewItemList.get(position);
@@ -50,7 +50,6 @@ public class ListViewAdapterIoT extends BaseAdapter {
         // 아이템 내 각 위젯에 데이터 반영
         iconImageView.setImageDrawable(listViewItem.getIcon());
         titleTextView.setText(listViewItem.getTitle());
-        descTextView.setText(listViewItem.getDesc());
 
         return convertView;
     }
@@ -68,13 +67,24 @@ public class ListViewAdapterIoT extends BaseAdapter {
     }
 
     // 아이템 데이터 추가를 위한 함수. 개발자가 원하는대로 작성 가능.
-    public void addItem(Drawable icon, String title, String desc, String account) {
+    public void addItem(Drawable icon, String title) {
         ListViewIoTItem item = new ListViewIoTItem();
 
         item.setIcon(icon);
         item.setTitle(title);
-        item.setDesc(desc);
 
         listViewItemList.add(item);
+    }
+    //cursor를 이용해서 리스트뷰에 아이템 추가
+    public void addItem(Drawable icon, Cursor cursor) {
+
+        while (cursor.moveToNext()) {
+            ListViewIoTItem item = new ListViewIoTItem();
+            item.setIcon(icon);
+            item.setTitle(cursor.getString(1));
+
+            listViewItemList.add(item);
+        }
+        cursor.close();
     }
 }

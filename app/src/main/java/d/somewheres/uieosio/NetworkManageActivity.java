@@ -17,6 +17,7 @@ public class NetworkManageActivity extends AppCompatActivity {
 
     ListView listview; //리스트뷰 객체 생성
     ListViewAdapterIoT adapter; //어댑터 생성
+    String networkname; //네트워크 이름을 받아온다.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,12 +29,15 @@ public class NetworkManageActivity extends AppCompatActivity {
 
         //툴바 제목에 리스트뷰에 클릭한 네트워크이름 보여줌
         TextView networktitle = (TextView)findViewById(R.id.toolbar_title2);
+        networkname = intent.getStringExtra("name");
         networktitle.setText(intent.getStringExtra("name"));
 
-        // 여기 리스트뷰에서는 최근 조작한 IoT장치 값 받아서 나타냄
+        // 여기 리스트뷰에서는 최근 조작한 IoT장치 값 받아서 나타냄(미완)
         adapter = new ListViewAdapterIoT();
         listview = (ListView) findViewById(R.id.listview2);
         listview.setAdapter(adapter);
+
+
         //iot 관리 파트
         Button button = (Button) findViewById(R.id.btn_IoTmanage);
         button.setOnClickListener(new View.OnClickListener() {
@@ -41,6 +45,8 @@ public class NetworkManageActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(),IoTdeviceManageActivity.class);
                 //여기서도 인탠트 메인메뉴 타이틀을 넘겨줘야함.
+                //iot참가 명령어를 보내기위해 네트워크 이름을 다음 액티비티로 전송
+                intent.putExtra("name",networkname);
                 startActivity(intent);
 
             }
@@ -51,6 +57,8 @@ public class NetworkManageActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(),userManageActivity.class);
                 //여기서도 인탠트 메인메뉴 타이틀을 넘겨줘야함.
+                //user참가 명령어를 보내기위해 네트워크 이름을 다음 액티비티로 전송
+                intent.putExtra("name",networkname);
                 startActivity(intent);
 
             }

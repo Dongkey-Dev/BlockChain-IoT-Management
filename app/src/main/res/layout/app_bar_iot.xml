@@ -16,7 +16,7 @@
 
         <!--화면 상단의 툴바를 위한 xml이다.-->
         <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar3"
+            android:id="@+id/iot_manage_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
