@@ -33,6 +33,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -66,7 +67,6 @@ public class MainActivity extends AppCompatActivity
     ListView listview; //리스트뷰 객체 생성
     ListViewAdapter adapter; //어댑터 생성
     SSHThread sshThread; //ssh를 사용할 쓰레드 선언
-    HTTPThread httpThread; //http rest api를 사용할 쓰레드 선언
     JSONObject jsonObject; //jsonObject형식을 저장할수 있는 변수{키:값}
     private DatabaseHelper DatabaseHelper; //데이터베이스 객체
     String tmpdata1, tmpdata2; //네트워크 연결로 받아온 데이터를 저장할 변수
@@ -240,6 +240,8 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
             }
         });
+
+
 
 
         //네트워크 생성 파트 버튼클릭시
