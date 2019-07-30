@@ -1,5 +1,6 @@
 package d.somewheres.uieosio;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.support.v4.content.ContextCompat;
@@ -13,6 +14,14 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Properties;
+
 public class userManageActivity extends AppCompatActivity {
 
     // 사용자참가 리스트뷰와 목록 리스트뷰를 나타내는 JAVA파일을 구현해야한다.
@@ -20,6 +29,7 @@ public class userManageActivity extends AppCompatActivity {
     ListViewuserAdapter adapter; //어댑터 생성
     String networkname;
     private DatabaseHelper DatabaseHelper; //데이터베이스 객체
+    SSHThread sshThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +67,13 @@ public class userManageActivity extends AppCompatActivity {
                 String username = usercreate.getText().toString();
 
                 //SSH를 이용해 컨트랙트 실행해 사용자를 넣는다
-
+                sshThread = new SSHThread("cleos push action " + networkname + " adduser [\"" + networkname + "\",\"" + username + "\"] -p " + networkname + "@active" );
+                sshThread.start();
+                try {
+                    sshThread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
                 //목록은 리스트뷰에 추가한다
                 TextView userNolist = (TextView)findViewById(R.id.controllist);
@@ -82,5 +98,83 @@ public class userManageActivity extends AppCompatActivity {
             }
         }
         return super.onOptionsItemSelected(item);
+    }
+    public class SSHThread extends Thread {
+        Context context;
+        String Command;
+        String result;
+        int trigger=0; //서브스트링을 구분하기위한 트리거, 0이면 기본 명령값
+
+        //텍스트뷰를 나타내기 위한 생성자
+
+
+        //명령어를 단순 실행하기위한 생성자
+        SSHThread(String m_command) {
+            Command = m_command;
+        }
+
+        SSHThread(int trigger,String m_command) {
+            this.trigger = trigger;
+            Command = m_command;
+        }
+
+
+
+
+        public void startcommand() {
+            ArrayList totalmsg = null;
+
+            // String command1 = "ls"; // 여기안에 입력하고자 하는 EOS 명령어
+            try {
+                Properties config = new Properties();
+                config.put("StrictHostKeyChecking", "no");
+                JSch jsch = new JSch();
+                // Create a JSch session to connect to the server
+                Session session = jsch.getSession("gpc", "192.168.0.12", 22); //host:ip주소
+                session.setPassword("1q2w3e4r");
+                session.setConfig(config);
+                // Establish the connection
+                session.connect();
+                System.out.println("Connected...");
+
+                ChannelExec channel = (ChannelExec) session
+                        .openChannel("exec");
+                channel.setCommand(Command);
+                channel.setErrStream(System.err);
+
+
+                InputStream in = channel.getInputStream();
+                System.out.println(in);
+                channel.connect();
+                byte[] tmp = new byte[1024];
+                while (true) {
+                    while (in.available() > 0) {
+                        int i = in.read(tmp, 0, 1024);
+                        if (i < 0) {
+                            break;
+                        }
+                        System.out.print(new String(tmp, 0, i));
+                        this.result = new String(tmp, 0, i);
+                    }
+                    if (channel.isClosed()) {
+                        System.out.println("Exit Status: "
+                                + channel.getExitStatus());
+                        break;
+                    }
+                    Thread.sleep(1000);
+                }
+                channel.disconnect();
+                session.disconnect();
+                System.out.println("DONE!!!");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (trigger == 0) {
+                //명령어만 입력시 실행만
+            }
+        }
+        public void run() {
+            startcommand();
+        }
     }
 }
