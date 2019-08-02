@@ -348,8 +348,9 @@ public class MainActivity extends AppCompatActivity
                     public void onPositiveClicked(String name, String desc) {
                         //확인버튼 클릭시 사용자로 지정된 이름의 목록 생성
                         String account = "사용자";
-                        adapter.addItem(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_menu_camera), name, desc, account);
-
+                        adapter.addItem(ContextCompat.getDrawable(MainActivity.this, R.drawable.network), name, desc, account);
+                        TextView NetworkNolist = (TextView)findViewById(R.id.NetworkNolist);
+                        NetworkNolist.setVisibility(View.GONE);
                         adapter.notifyDataSetChanged();
                     }
 
@@ -404,6 +405,104 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            AlertDialog.Builder alert = new AlertDialog.Builder(this); //시작할떄다이얼로그 알림
+            alert.setTitle("사용자 이름 입력"); //다이얼로그의 내용
+            final EditText name = new EditText(this);
+            alert.setView(name);
+
+            //확인버튼 클릭시
+            alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                    //초기설정 메인액티비티 컨택스트, 연결할 eos 체인넷, 사용자가 작성한 이름을 가져옴
+                    context = getApplicationContext();
+                    String url = "http://192.168.0.12:8888/v1/chain/get_account"; //rest api rul을 지정
+                    username = name.getText().toString(); //username에 사용자가 입력한 값을 얻어옴
+
+                    // (초기접속시) 계정을 생성할때 ssh로 먼저 지갑을 계정이름과 같게 만들고(명령어)
+                    // tmp1변수에 패스워드 추출해 줘야합니다.
+                    sshThread = new SSHThread(1,"cleos wallet create -n " + username + " --to-console");
+                    sshThread.start();
+                    try {
+                        sshThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    // db에 비밀번호를 저장 // 추출한 패스워드값 넣어야함
+                    Person person = new Person();
+                    person.setPassword(tmpdata1);
+
+                    // db에 저장된걸로 지갑을 먼저 연다음(명령어)
+                    sshThread = new SSHThread("cleos wallet unlock --name " + username + " --password " + tmpdata1);
+                    sshThread.start();
+                    try {
+                        sshThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    // 키를 발급받고(명령어) //여기서 프라이빗키(지갑에 넣기위해 얻어옴), 퍼블릭키(저장)를 받아와야한다
+                    sshThread = new SSHThread(2,"cleos create key --to-console");
+                    sshThread.start();
+                    try {
+                        sshThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    String privatekey = tmpdata1;
+                    String publickey = tmpdata2;
+                    // 비공개키는 지갑에넣음(명령어) 공개키는 계정생성할때 씀(공개키는 저장)
+                    sshThread = new SSHThread("cleos wallet import -n "+ username + " --private-key " + privatekey);
+                    sshThread.start();
+                    try {
+                        sshThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    // eosio 스태틱값 넣음
+                    sshThread = new SSHThread("cleos wallet import -n "+ username + " --private-key 5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
+                    sshThread.start();
+                    try {
+                        sshThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    //계정생성
+                    sshThread = new SSHThread("cleos create account eosio "+ username + " " + publickey + " " + publickey);
+                    sshThread.start();
+                    try {
+                        sshThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    // (동시에진행)
+
+
+                    //네비게이션 텍스트뷰 id값을 얻어와 거기에 텍스트를 나타냄
+                    TextView userID = (TextView) findViewById(R.id.username);
+                    userID.setText(username);
+
+                    //키값을 얻어오기위해 뷰의 key id얻어옴
+                    TextView keyvalue = (TextView) findViewById(R.id.keyvalue);
+                    keyvalue.setText(tmpdata2);
+
+                    //http 연결을 위한 쓰레드 생성
+                    context = getApplicationContext();
+
+                    person.setName(name.getText().toString());
+                    person.setUserkey(keyvalue.getText().toString());
+                    DatabaseHelper.addPerson(person); // db에 업데이트
+                    //intent로 메인 액티비티를 새로고침한다.
+                    Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+
+                    // 여기에 백엔드에 계정키를 얻어와서 데이터베이스에 저장하고 매핑하는 함수? 작성
+                }
+            });
+            alert.show(); //알림보여줌
             return true;
         }
 
@@ -456,7 +555,7 @@ public class MainActivity extends AppCompatActivity
                 config.put("StrictHostKeyChecking", "no");
                 JSch jsch = new JSch();
                 // Create a JSch session to connect to the server
-                Session session = jsch.getSession("gpc", "192.168.0.12", 22); //host:ip주소
+                Session session = jsch.getSession("gpc", "192.168.0.13", 22); //host:ip주소
                 session.setPassword("1q2w3e4r");
                 session.setConfig(config);
                 // Establish the connection

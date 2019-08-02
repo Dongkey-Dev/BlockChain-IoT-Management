@@ -31,7 +31,6 @@ public class NetworkManageActivity extends AppCompatActivity {
         TextView networktitle = (TextView)findViewById(R.id.toolbar_title2);
         networkname = intent.getStringExtra("name");
         networktitle.setText(intent.getStringExtra("name"));
-
         // 여기 리스트뷰에서는 최근 조작한 IoT장치 값 받아서 나타냄(미완)
         adapter = new ListViewAdapterIoT();
         listview = (ListView) findViewById(R.id.listview2);

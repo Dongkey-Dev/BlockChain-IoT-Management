@@ -130,7 +130,7 @@ public class userManageActivity extends AppCompatActivity {
                 config.put("StrictHostKeyChecking", "no");
                 JSch jsch = new JSch();
                 // Create a JSch session to connect to the server
-                Session session = jsch.getSession("gpc", "192.168.0.12", 22); //host:ip주소
+                Session session = jsch.getSession("gpc", "192.168.0.13", 22); //host:ip주소
                 session.setPassword("1q2w3e4r");
                 session.setConfig(config);
                 // Establish the connection

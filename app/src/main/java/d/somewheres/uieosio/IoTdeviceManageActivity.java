@@ -49,6 +49,24 @@ public class IoTdeviceManageActivity extends AppCompatActivity {
         Intent intent = getIntent();
         networkname = intent.getStringExtra("name");
 
+        String url = "http://192.168.0.13:8888/v1/chain/get_account"; //rest api rul을 지정
+        //버튼 클릭시 ioT 이름을 텍스트창에서 가져온다
+
+        JSONObject jsonObject = new JSONObject();
+
+        try {
+            jsonObject.put("account_name",networkname); //post할 값을 넣어준다
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        //네트워크이름에 대한 공용키를 얻어온다.
+        httpThread = new HTTPThread(url,jsonObject);
+        httpThread.start(); //시작
+        try {
+            httpThread.join(); //쓰레드 끝날떄까지 멈춤
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         //DB에서 IoT기기 내역을 받아 리스트뷰로 나타내는 코드 구현
         adapter = new ListViewAdapterIoT();
         listview = (ListView) findViewById(R.id.ioT_listview);
@@ -72,27 +90,10 @@ public class IoTdeviceManageActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String url = "http://192.168.0.12:8888/v1/chain/get_account"; //rest api rul을 지정
-                //버튼 클릭시 ioT 이름을 텍스트창에서 가져온다
                 EditText iotcreate = (EditText)findViewById(R.id.iotcreate);
                 String iotname = iotcreate.getText().toString();
-
-                JSONObject jsonObject = new JSONObject();
-
-                try {
-                    jsonObject.put("account_name",networkname); //post할 값을 넣어준다
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                //네트워크이름에 대한 공용키를 얻어온다.
-                httpThread = new HTTPThread(url,jsonObject);
-                httpThread.start(); //시작
-                try {
-                    httpThread.join(); //쓰레드 끝날떄까지 멈춤
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
+                TextView test1 = (TextView) findViewById(R.id.iotlist);
+                test1.setText(p_key);
 
                 //SSH를 이용해  iOt장치를 생성한다
                 sshThread = new SSHThread("cleos create account eosio " + iotname + " " + p_key + " " + p_key);
@@ -168,7 +169,7 @@ public class IoTdeviceManageActivity extends AppCompatActivity {
                 config.put("StrictHostKeyChecking", "no");
                 JSch jsch = new JSch();
                 // Create a JSch session to connect to the server
-                Session session = jsch.getSession("gpc", "192.168.0.12", 22); //host:ip주소
+                Session session = jsch.getSession("gpc", "192.168.0.13", 22); //host:ip주소
                 session.setPassword("1q2w3e4r");
                 session.setConfig(config);
                 // Establish the connection

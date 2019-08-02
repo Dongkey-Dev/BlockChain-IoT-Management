@@ -56,6 +56,7 @@
 
     <!--밑에 목록이나온다고 알려주는 단순 텍스트뷰이다.-->
     <TextView
+        android:id="@+id/iotlist"
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:gravity="center_horizontal"
@@ -84,7 +85,9 @@
             android:divider="#ffffff"
             android:dividerHeight="4dp"></ListView>
     </FrameLayout>
-    <View style="@style/Divider"/>
+    <View
+        style="@style/Divider"
+        android:layout_height="53dp" />
 
 
 
