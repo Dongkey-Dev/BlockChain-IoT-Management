@@ -92,8 +92,6 @@ public class IoTdeviceManageActivity extends AppCompatActivity {
             public void onClick(View view) {
                 EditText iotcreate = (EditText)findViewById(R.id.iotcreate);
                 String iotname = iotcreate.getText().toString();
-                TextView test1 = (TextView) findViewById(R.id.iotlist);
-                test1.setText(p_key);
 
                 //SSH를 이용해  iOt장치를 생성한다
                 sshThread = new SSHThread("cleos create account eosio " + iotname + " " + p_key + " " + p_key);
