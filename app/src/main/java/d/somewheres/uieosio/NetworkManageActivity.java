@@ -25,6 +25,7 @@ public class NetworkManageActivity extends AppCompatActivity {
     ListView listview; //리스트뷰 객체 생성
     ListViewAdapterIoT adapter; //어댑터 생성
     String networkname; //네트워크 이름을 받아온다.
+    String account;
     HTTPThread httpThread;
 
     @Override
@@ -40,6 +41,7 @@ public class NetworkManageActivity extends AppCompatActivity {
         //툴바 제목에 리스트뷰에 클릭한 네트워크이름 보여줌
         TextView networktitle = (TextView)findViewById(R.id.toolbar_title2);
         networkname = intent.getStringExtra("name");
+        account = intent.getStringExtra("account");
         networktitle.setText(intent.getStringExtra("name"));
 
         JSONObject jsonObject = new JSONObject();
@@ -90,6 +92,11 @@ public class NetworkManageActivity extends AppCompatActivity {
 
             }
         });
+
+        if(account == "사용자") {
+            button.setVisibility(View.GONE);
+            button2.setVisibility(View.GONE);
+        }
 
         Toolbar toolbar = findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);

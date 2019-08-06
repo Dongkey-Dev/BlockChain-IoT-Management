@@ -162,6 +162,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
+    public void deleteIoTlist(String IoT) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        String sql = String.format("DELETE FROM iot_tb WHERE NAME = " + IoT);
+    }
+
     //사용자관리 파트 부분
     public void adduserlist(User user) {
         String name = user.getName();

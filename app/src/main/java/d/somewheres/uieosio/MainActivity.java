@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity
     private DatabaseHelper DatabaseHelper; //데이터베이스 객체
     String tmpdata1, tmpdata2; //네트워크 연결로 받아온 데이터를 저장할 변수
     String username;
+    String account;
 
 
     @Override
@@ -235,6 +236,7 @@ public class MainActivity extends AppCompatActivity
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(getApplicationContext(), NetworkManageActivity.class);
                 intent.putExtra("name",adapter.getname(i));
+                intent.putExtra("account",account);
 
 
                 startActivity(intent);
@@ -255,7 +257,7 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onPositiveClicked(String name, String desc) {
                         DatabaseHelper = new DatabaseHelper(MainActivity.this,"eos.db",null,1);
-                        String account = "관리자";
+                        account = "관리자";
 
 
                         //db세팅

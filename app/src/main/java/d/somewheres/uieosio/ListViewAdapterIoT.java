@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -50,7 +51,14 @@ public class ListViewAdapterIoT extends BaseAdapter {
         // 아이템 내 각 위젯에 데이터 반영
         iconImageView.setImageDrawable(listViewItem.getIcon());
         titleTextView.setText(listViewItem.getTitle());
+        Button button1 = (Button) convertView.findViewById(R.id.iotbutton);
 
+        button1.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                ListViewIoTItem count = listViewItemList.get(pos);
+                listViewItemList.remove(count);
+            }
+        });
         return convertView;
     }
 
