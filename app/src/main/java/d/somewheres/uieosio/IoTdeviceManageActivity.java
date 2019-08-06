@@ -327,6 +327,14 @@ public class IoTdeviceManageActivity extends AppCompatActivity {
                     ListViewIoTItem count = listViewItemList.get(pos);
                     listViewItemList.remove(count);
                     String deletename = listViewItemList.get(pos).getTitle();
+                    //ssh를 이용해 iot장치를 추가한다.
+                    sshThread = new SSHThread("cleos push action " + networkname + " removedevice [\"" + deletename + "\"] -p " + deletename + "@active" );
+                    sshThread.start();
+                    try {
+                        sshThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     DatabaseHelper.deleteIoTlist(deletename);
                     adapter.notifyDataSetChanged();
                 }
