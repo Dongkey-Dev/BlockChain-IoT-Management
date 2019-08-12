@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:dist="http://schemas.android.com/apk/distribution"
     package="d.somewheres.uieosio">
+
     <uses-permission android:name="android.permission.INTERNET" />
+
     <dist:module dist:instant="true" />
 
     <application
@@ -12,8 +14,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".userManageActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity android:name=".IoTinfoActivity"></activity>
+        <activity
+            android:name=".userManageActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".IoTdeviceManageActivity"
             android:theme="@style/AppTheme.NoActionBar" />

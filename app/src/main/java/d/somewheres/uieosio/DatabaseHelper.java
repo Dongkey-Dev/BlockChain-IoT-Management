@@ -186,4 +186,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(sb.toString(), null);
         return cursor;
     }
+
+    public void deleteuserlist(String user) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        String sql = String.format("DELETE FROM user_tb WHERE NAME = " + user);
+    }
 }

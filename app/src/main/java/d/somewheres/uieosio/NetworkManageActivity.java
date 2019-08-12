@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -23,7 +24,7 @@ import java.util.List;
 public class NetworkManageActivity extends AppCompatActivity {
 
     ListView listview; //리스트뷰 객체 생성
-    ListViewAdapterIoT adapter; //어댑터 생성
+    ListViewAdapter adapter; //어댑터 생성
     String networkname; //네트워크 이름을 받아온다.
     String account;
     HTTPThread httpThread;
@@ -62,9 +63,21 @@ public class NetworkManageActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         // 여기 리스트뷰에서는 최근 조작한 IoT장치 값 받아서 나타냄(미완)
-        adapter = new ListViewAdapterIoT();
+        adapter = new ListViewAdapter();
         listview = (ListView) findViewById(R.id.listview2);
         listview.setAdapter(adapter);
+        //아이템 클릭시 iot장치의 이름 넘겨준다.
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(getApplicationContext(), IoTinfoActivity.class);
+                intent.putExtra("name",adapter.getname(i));
+
+
+
+                startActivity(intent);
+            }
+        });
 
 
         //iot 관리 파트
