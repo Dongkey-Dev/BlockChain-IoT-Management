@@ -10,7 +10,7 @@ import android.widget.ListView;
 public class IoTinfoActivity extends AppCompatActivity {
     String IoTname;
     ListView listview; //리스트뷰 객체 생성
-    ListViewAdapter adapter; //어댑터 생성
+    ListViewAdapterIoTinfo adapter; //어댑터 생성
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +21,7 @@ public class IoTinfoActivity extends AppCompatActivity {
         Intent intent = getIntent();
         IoTname = intent.getStringExtra("name");
 
-        adapter = new ListViewAdapter();
+        adapter = new ListViewAdapterIoTinfo();
         listview = (ListView) findViewById(R.id.IoTinfolistview);
 
         //장치 내용과 시간을받아서 어댑터에 추가
