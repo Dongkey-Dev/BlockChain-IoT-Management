@@ -199,6 +199,9 @@ public class MainActivity extends AppCompatActivity
             String userpassword = DatabaseHelper.getPersonpassword();
 
             //화면에보이는 유저이름과 공용키 설정(오류로 다시...)
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            navigationView.setNavigationItemSelectedListener(this);
+
 
 
             setContentView(R.layout.activity_main);
@@ -375,6 +378,19 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
         backPressCloseHandler = new BackPressCloseHandler(this);
+
+        if(file.exists()) {
+            DatabaseHelper = new DatabaseHelper(MainActivity.this,"eos.db",null,1);
+
+            String username = DatabaseHelper.getPersonname();
+            String userkey = DatabaseHelper.getPersonkey();
+
+            View nav_header_view = navigationView.getHeaderView(0);
+            TextView title = (TextView)nav_header_view.findViewById(R.id.username);
+            TextView keyvalue = (TextView)nav_header_view.findViewById(R.id.keyvalue);
+            title.setText(username);
+            keyvalue.setText(userkey);
+        }
 
     }
 

@@ -24,7 +24,7 @@ public class IoTinfoActivity extends AppCompatActivity {
         adapter = new ListViewAdapterIoTinfo();
         listview = (ListView) findViewById(R.id.IoTinfolistview);
 
-        //장치 내용과 시간을받아서 어댑터에 추가
+        //장치 내용과 시간목록을 받아서 어댑터에 추가
         //adapter.addItem());
         adapter.notifyDataSetChanged();
         listview.setAdapter(adapter);
