@@ -4,8 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".IoTinfoActivity">
 
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <ListView
         android:id="@+id/IoTinfolistview"
         android:layout_width="match_parent"
@@ -14,5 +19,14 @@
         android:layout_weight="1"
         android:divider="#ffffff"
         android:dividerHeight="4dp"></ListView>
+
+    <TextView
+        android:id="@+id/iotcontrollist"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textSize="24dp"
+        android:text="내역이 없습니다."/>
+    </FrameLayout>
 
 </LinearLayout>

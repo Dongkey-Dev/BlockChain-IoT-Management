@@ -81,7 +81,7 @@ public class NetworkManageActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(getApplicationContext(), IoTinfoActivity.class);
                 intent.putExtra("name",adapter.getname(i));
-
+                intent.putExtra("networkname",networkname);
 
 
                 startActivity(intent);
@@ -204,7 +204,10 @@ public class NetworkManageActivity extends AppCompatActivity {
                     iottitle = device.get(i);
                     iotdata = result.get(device.get(i)).get(0).get(0).toString();
                     iottime = result.get(device.get(i)).get(0).get(1).toString();
-                    adapter.addItem(ContextCompat.getDrawable(NetworkManageActivity.this, R.drawable.iot), iottitle, iotdata, iottime);
+                    String year = iottime.substring(0,10);
+                    String time = iottime.substring(11,19);
+                    String sum1 = year + "  " + time;
+                    adapter.addItem(ContextCompat.getDrawable(NetworkManageActivity.this, R.drawable.iot), iottitle, iotdata, sum1);
                     adapter.notifyDataSetChanged();
                 }
                 super.onPostExecute(s);
