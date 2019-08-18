@@ -166,6 +166,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
 
         String sql = String.format("DELETE FROM iot_tb WHERE NAME = " + IoT);
+        db.execSQL(sql);
     }
 
     //사용자관리 파트 부분
@@ -191,5 +192,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
 
         String sql = String.format("DELETE FROM user_tb WHERE NAME = " + user);
+        db.execSQL(sql);
     }
 }

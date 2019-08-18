@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
@@ -224,8 +225,7 @@ public class userManageActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     ListViewuserItem count = listViewItemList.get(pos);
                     listViewItemList.remove(count);
-                    String deletename = listViewItemList.get(pos).getTitle();
-
+                    String deletename = count.getTitle();
                     //ssh를 이용해 유저를 삭제한다
                     sshThread = new SSHThread("cleos push action " + networkname + " removeuser [\"" + deletename + "\"] -p " + deletename + "@active" );
                     sshThread.start();

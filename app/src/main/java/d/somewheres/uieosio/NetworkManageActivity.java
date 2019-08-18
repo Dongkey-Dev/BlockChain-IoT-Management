@@ -59,7 +59,7 @@ public class NetworkManageActivity extends AppCompatActivity {
         try {
             jsonObject.put("pos","-1"); //post할 값을 넣어준다
             jsonObject.put("offset","-20");
-            jsonObject.put("account_name",networkname);
+            jsonObject.put("account_name","network55");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -207,7 +207,7 @@ public class NetworkManageActivity extends AppCompatActivity {
                     String year = iottime.substring(0,10);
                     String time = iottime.substring(11,19);
                     String sum1 = year + "  " + time;
-                    adapter.addItem(ContextCompat.getDrawable(NetworkManageActivity.this, R.drawable.iot), iottitle, iotdata, sum1);
+                    adapter.addItem(ContextCompat.getDrawable(NetworkManageActivity.this, R.drawable.remote), iottitle, iotdata, sum1);
                     adapter.notifyDataSetChanged();
                 }
                 super.onPostExecute(s);

@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,11 +44,10 @@ public class IoTinfoActivity extends AppCompatActivity {
         IoTname = intent.getStringExtra("name");
         networkname = intent.getStringExtra("networkname");
         JSONObject jsonObject = new JSONObject();
-
         try {
             jsonObject.put("pos","-1"); //post할 값을 넣어준다
             jsonObject.put("offset","-20");
-            jsonObject.put("account_name",networkname);
+            jsonObject.put("account_name","network55");
         } catch (JSONException e) {
             e.printStackTrace();
         }
