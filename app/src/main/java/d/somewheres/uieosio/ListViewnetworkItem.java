@@ -6,7 +6,6 @@ import android.graphics.drawable.Drawable;
 public class ListViewnetworkItem {
     private Drawable iconDrawable ;
     private String titleStr ;
-    private String descStr ;
     private String accountStr;
 
     public void setIcon(Drawable icon) {
@@ -14,9 +13,6 @@ public class ListViewnetworkItem {
     }
     public void setTitle(String title) {
         titleStr = title ;
-    }
-    public void setDesc(String desc) {
-        descStr = desc ;
     }
     public void setaccount(String account) {
         accountStr = account ;
@@ -27,9 +23,6 @@ public class ListViewnetworkItem {
     }
     public String getTitle() {
         return this.titleStr ;
-    }
-    public String getDesc() {
-        return this.descStr ;
     }
     public String getAccountStr() {
         return this.accountStr;

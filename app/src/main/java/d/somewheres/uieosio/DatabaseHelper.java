@@ -36,7 +36,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         tb.append(" CREATE TABLE if not exists network_tb ( ");
         tb.append(" _ID INTEGER PRIMARY KEY AUTOINCREMENT, ");
         tb.append(" NAME TEXT, ");
-        tb.append(" DESC TEXT, ");
         tb.append(" ACCOUNT TEXT ) ");
         db.execSQL(tb.toString());
 
@@ -126,12 +125,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //네트워크 생성파트 부분
     public void addNetworklist(Network network) {
         String name = network.getName();
-        String desc = network.getDesc();
         String account = network.getAccount();
         SQLiteDatabase db = getWritableDatabase();
 
         // 데이터를 넣는다
-        String sql = String.format("INSERT INTO network_tb(name, desc, account) VALUES('" + name + "','" + desc + "','" + account + "');");
+        String sql = String.format("INSERT INTO network_tb(name, account) VALUES('" + name + "','" + account + "');");
         db.execSQL(sql);
 
     }

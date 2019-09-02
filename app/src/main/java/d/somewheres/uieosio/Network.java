@@ -24,13 +24,6 @@ public class Network {
         this.name = name;
     }
 
-    public String getDesc() {
-        return desc;
-    }
-
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
 
     public String getAccount() {
         return account;

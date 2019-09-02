@@ -87,106 +87,8 @@ public class MainActivity extends AppCompatActivity
         // 바탕화면을클릭시 꺼지는 거 고쳐야함
         // 데이터베이스에 존재하지 않으면 실행
         if (!file.exists()) {
-            DatabaseHelper = new DatabaseHelper(MainActivity.this,"eos.db",null,1);
-
-            AlertDialog.Builder alert = new AlertDialog.Builder(this); //시작할떄다이얼로그 알림
-            alert.setTitle("사용자 이름 입력"); //다이얼로그의 내용
-            final EditText name = new EditText(this);
-            alert.setView(name);
-
-            //확인버튼 클릭시
-            alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-
-                    //초기설정 메인액티비티 컨택스트, 연결할 eos 체인넷, 사용자가 작성한 이름을 가져옴
-                    context = getApplicationContext();
-                    String url = "http://192.168.0.12:8888/v1/chain/get_account"; //rest api rul을 지정
-                    username = name.getText().toString(); //username에 사용자가 입력한 값을 얻어옴
-
-                    // (초기접속시) 계정을 생성할때 ssh로 먼저 지갑을 계정이름과 같게 만들고(명령어)
-                    // tmp1변수에 패스워드 추출해 줘야합니다.
-                    sshThread = new SSHThread(1,"cleos wallet create -n " + username + " --to-console");
-                    sshThread.start();
-                    try {
-                        sshThread.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    // db에 비밀번호를 저장 // 추출한 패스워드값 넣어야함
-                    Person person = new Person();
-                    person.setPassword(tmpdata1);
-
-                    // db에 저장된걸로 지갑을 먼저 연다음(명령어)
-                    sshThread = new SSHThread("cleos wallet unlock --name " + username + " --password " + tmpdata1);
-                    sshThread.start();
-                    try {
-                        sshThread.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    // 키를 발급받고(명령어) //여기서 프라이빗키(지갑에 넣기위해 얻어옴), 퍼블릭키(저장)를 받아와야한다
-                    sshThread = new SSHThread(2,"cleos create key --to-console");
-                    sshThread.start();
-                    try {
-                        sshThread.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    String privatekey = tmpdata1;
-                    String publickey = tmpdata2;
-                    // 비공개키는 지갑에넣음(명령어) 공개키는 계정생성할때 씀(공개키는 저장)
-                    sshThread = new SSHThread("cleos wallet import -n "+ username + " --private-key " + privatekey);
-                    sshThread.start();
-                    try {
-                        sshThread.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    // eosio 스태틱값 넣음
-                    sshThread = new SSHThread("cleos wallet import -n "+ username + " --private-key 5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
-                    sshThread.start();
-                    try {
-                        sshThread.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    //계정생성
-                    sshThread = new SSHThread("cleos create account eosio "+ username + " " + publickey + " " + publickey);
-                    sshThread.start();
-                    try {
-                        sshThread.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    // (동시에진행)
-
-
-                    //네비게이션 텍스트뷰 id값을 얻어와 거기에 텍스트를 나타냄
-                    TextView userID = (TextView) findViewById(R.id.username);
-                    userID.setText(username);
-
-                    //키값을 얻어오기위해 뷰의 key id얻어옴
-                    TextView keyvalue = (TextView) findViewById(R.id.keyvalue);
-                    keyvalue.setText(tmpdata2);
-
-                    //http 연결을 위한 쓰레드 생성
-                    context = getApplicationContext();
-
-                    person.setName(name.getText().toString());
-                    person.setUserkey(keyvalue.getText().toString());
-                    DatabaseHelper.addPerson(person); // db에 업데이트
-                    //intent로 메인 액티비티를 새로고침한다.
-                    Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    startActivity(intent);
-
-                    // 여기에 백엔드에 계정키를 얻어와서 데이터베이스에 저장하고 매핑하는 함수? 작성
-                }
-            });
-            alert.show(); //알림보여줌
+            Intent intent = new Intent(getApplicationContext(),Create_Account_Activity.class);
+            startActivity(intent);
         } else {
             DatabaseHelper = new DatabaseHelper(MainActivity.this,"eos.db",null,1);
 
@@ -213,160 +115,37 @@ public class MainActivity extends AppCompatActivity
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            adapter = new ListViewAdapter();
+            listview = (ListView) findViewById(R.id.listview1);
 
-            Intent intent = new Intent(MainActivity.this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
+            Cursor cursor = DatabaseHelper.networkitem();
+
+            adapter.addItem(ContextCompat.getDrawable(MainActivity.this, R.drawable.network),cursor);
+            if(cursor.getCount() > 0) {
+                TextView NetworkNolist = (TextView)findViewById(R.id.NetworkNolist);
+                NetworkNolist.setVisibility(View.GONE);
+            }
+            adapter.notifyDataSetChanged();
+            listview.setAdapter(adapter);
+            //아이템 클릭시 그 네트워크의 ioT및 사용자를 관리할수있는 액티비티로 전환 및 값을 넘겨준다
+            listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Intent intent = new Intent(getApplicationContext(), NetworkManageActivity.class);
+                    intent.putExtra("name",adapter.getname(i));
+                    intent.putExtra("account",account);
+
+
+                    startActivity(intent);
+                }
+            });
         }
 
         //db에서 네트워크목록을 가져오는파트
         //네트워크 목록을 나타내기위한 리스트뷰 및 어댑터 장착
-        adapter = new ListViewAdapter();
-        listview = (ListView) findViewById(R.id.listview1);
-
-        Cursor cursor = DatabaseHelper.networkitem();
-
-        adapter.addItem(ContextCompat.getDrawable(MainActivity.this, R.drawable.network),cursor);
-        if(cursor.getCount() > 0) {
-            TextView NetworkNolist = (TextView)findViewById(R.id.NetworkNolist);
-            NetworkNolist.setVisibility(View.GONE);
-        }
-        adapter.notifyDataSetChanged();
-        listview.setAdapter(adapter);
-        //아이템 클릭시 그 네트워크의 ioT및 사용자를 관리할수있는 액티비티로 전환 및 값을 넘겨준다
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(getApplicationContext(), NetworkManageActivity.class);
-                intent.putExtra("name",adapter.getname(i));
-                intent.putExtra("account",account);
-
-
-                startActivity(intent);
-            }
-        });
 
 
 
-
-        //네트워크 생성 파트 버튼클릭시
-        Button button = (Button) findViewById(R.id.btn_networkCreate);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //커스텀다이얼로그 객체 생성해 보여준다.
-                CustomDialog customDialog = new CustomDialog(MainActivity.this);
-                customDialog.setDialogListener(new CustomDialog.CustomDialogListener() {
-                    @Override
-                    public void onPositiveClicked(String name, String desc) {
-                        DatabaseHelper = new DatabaseHelper(MainActivity.this,"eos.db",null,1);
-                        account = "관리자";
-
-
-                        //db세팅
-
-                        String username = DatabaseHelper.getPersonname();
-                        String userkey = DatabaseHelper.getPersonkey();
-                        String userpassword = DatabaseHelper.getPersonpassword();
-
-                        Network network = new Network();
-                        network.setName(name);
-                        network.setDesc(desc);
-                        network.setAccount(account);
-                        DatabaseHelper.addNetworklist(network);
-
-                        //네트워크를 생성할시 ssh로 지갑을 열고(명령어)
-                        sshThread = new SSHThread("cleos wallet unlock --name " + username + " --password " + userpassword);
-                        sshThread.start();
-                        try {
-                            sshThread.join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-
-                        //네트워크 계정을 생성할 키를 발급(명령어)
-                        sshThread = new SSHThread(2,"cleos create key --to-console");
-                        sshThread.start();
-                        try {
-                            sshThread.join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        String privatekey = tmpdata1;
-                        String publickey = tmpdata2;
-
-                        //지갑에 키를 넣는다(명령어)
-                        sshThread = new SSHThread("cleos wallet import -n "+ username + " --private-key " + privatekey);
-                        sshThread.start();
-                        try {
-                            sshThread.join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-
-                        //네트워크 이름을 넘겨받은 계정을 생성한다(명령어)
-                        sshThread = new SSHThread("cleos create account eosio "+ name + " " + publickey + " " + publickey);
-                        sshThread.start();
-                        try {
-                            sshThread.join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-
-
-                        //abi를 설정한다(명령어)
-                        sshThread = new SSHThread("cleos set contract " + name + " /home/gpc/contracts/polman --abi polman.abi -p " + name + "@active");
-                        sshThread.start();
-                        try {
-                            sshThread.join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-
-                        TextView NetworkNolist = (TextView)findViewById(R.id.NetworkNolist);
-                        NetworkNolist.setVisibility(View.GONE);
-                        adapter.addItem(ContextCompat.getDrawable(MainActivity.this, R.drawable.network), name, desc, account);
-                        adapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onNegativeClicked() {
-
-                    }
-                });
-                customDialog.show();
-            }
-        });
-
-
-        //네트워크 참가 파트 버튼 클릭시
-        //1. 관리자측에서 클라이언트 계정이름을 REST API로 GET_ACCOUNT(명령어)를해 계정이름과 공개키를얻어와 SSH로 참가시키는 명령어를 완성해 컨트랙트실행(명령어)
-        //2. 참여자 클라이언트측은 일단은 참가버튼클릭시 get account(명령어)로 네트워크 계정이 존재하면 대기중으로 나타남 이후 관리자가 계정을 참여시키면 사용자로 바뀜(질의할수있는 메소드 생성할것임)
-        Button button2 = (Button) findViewById(R.id.btn_networkJoin);
-        button2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //커스텀다이얼로그 객체 생성
-                CustomDialog customDialog = new CustomDialog(MainActivity.this);
-                customDialog.setDialogListener(new CustomDialog.CustomDialogListener() {
-                    @Override
-                    public void onPositiveClicked(String name, String desc) {
-                        //확인버튼 클릭시 사용자로 지정된 이름의 목록 생성
-                        String account = "사용자";
-                        adapter.addItem(ContextCompat.getDrawable(MainActivity.this, R.drawable.network), name, desc, account);
-                        TextView NetworkNolist = (TextView)findViewById(R.id.NetworkNolist);
-                        NetworkNolist.setVisibility(View.GONE);
-                        adapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onNegativeClicked() {
-
-                    }
-                });
-                customDialog.show();
-            }
-        });
         //메인액티비티의 제목 및 네비게이션을 할수있는 상단의 툴바
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -410,7 +189,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.toolbar, menu);
         return true;
     }
 
@@ -422,105 +201,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            AlertDialog.Builder alert = new AlertDialog.Builder(this); //시작할떄다이얼로그 알림
-            alert.setTitle("사용자 이름 입력"); //다이얼로그의 내용
-            final EditText name = new EditText(this);
-            alert.setView(name);
+        if (id == R.id.toolbar_plus_button) {
+            Intent intent = new Intent(getApplicationContext(), Network_Create_Activity.class);
+            startActivity(intent);
 
             //확인버튼 클릭시
-            alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-
-                    //초기설정 메인액티비티 컨택스트, 연결할 eos 체인넷, 사용자가 작성한 이름을 가져옴
-                    context = getApplicationContext();
-                    String url = "http://192.168.0.12:8888/v1/chain/get_account"; //rest api rul을 지정
-                    username = name.getText().toString(); //username에 사용자가 입력한 값을 얻어옴
-
-                    // (초기접속시) 계정을 생성할때 ssh로 먼저 지갑을 계정이름과 같게 만들고(명령어)
-                    // tmp1변수에 패스워드 추출해 줘야합니다.
-                    sshThread = new SSHThread(1,"cleos wallet create -n " + username + " --to-console");
-                    sshThread.start();
-                    try {
-                        sshThread.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    // db에 비밀번호를 저장 // 추출한 패스워드값 넣어야함
-                    Person person = new Person();
-                    person.setPassword(tmpdata1);
-
-                    // db에 저장된걸로 지갑을 먼저 연다음(명령어)
-                    sshThread = new SSHThread("cleos wallet unlock --name " + username + " --password " + tmpdata1);
-                    sshThread.start();
-                    try {
-                        sshThread.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    // 키를 발급받고(명령어) //여기서 프라이빗키(지갑에 넣기위해 얻어옴), 퍼블릭키(저장)를 받아와야한다
-                    sshThread = new SSHThread(2,"cleos create key --to-console");
-                    sshThread.start();
-                    try {
-                        sshThread.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    String privatekey = tmpdata1;
-                    String publickey = tmpdata2;
-                    // 비공개키는 지갑에넣음(명령어) 공개키는 계정생성할때 씀(공개키는 저장)
-                    sshThread = new SSHThread("cleos wallet import -n "+ username + " --private-key " + privatekey);
-                    sshThread.start();
-                    try {
-                        sshThread.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    // eosio 스태틱값 넣음
-                    sshThread = new SSHThread("cleos wallet import -n "+ username + " --private-key 5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
-                    sshThread.start();
-                    try {
-                        sshThread.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    //계정생성
-                    sshThread = new SSHThread("cleos create account eosio "+ username + " " + publickey + " " + publickey);
-                    sshThread.start();
-                    try {
-                        sshThread.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    // (동시에진행)
-
-
-                    //네비게이션 텍스트뷰 id값을 얻어와 거기에 텍스트를 나타냄
-                    TextView userID = (TextView) findViewById(R.id.username);
-                    userID.setText(username);
-
-                    //키값을 얻어오기위해 뷰의 key id얻어옴
-                    TextView keyvalue = (TextView) findViewById(R.id.keyvalue);
-                    keyvalue.setText(tmpdata2);
-
-                    //http 연결을 위한 쓰레드 생성
-                    context = getApplicationContext();
-
-                    person.setName(name.getText().toString());
-                    person.setUserkey(keyvalue.getText().toString());
-                    DatabaseHelper.addPerson(person); // db에 업데이트
-                    //intent로 메인 액티비티를 새로고침한다.
-                    Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    startActivity(intent);
-
-                    // 여기에 백엔드에 계정키를 얻어와서 데이터베이스에 저장하고 매핑하는 함수? 작성
-                }
-            });
-            alert.show(); //알림보여줌
             return true;
         }
 

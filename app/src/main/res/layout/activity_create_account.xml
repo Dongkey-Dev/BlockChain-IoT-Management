@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="vertical"
+    android:fillViewport="true"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    tools:context=".Create_Account_Activity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:textSize="40dp"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/colorPrimaryDark"
+        android:text="계정 생성"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="＊ 블록체인 네트워크를 구성하기 위한 계정을 생성합니다."
+        android:layout_marginBottom="5dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="＊ 영문 a~z과 숫자 1~5로 구성된 계정이름을 생성하세요."
+        android:layout_marginBottom="5dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="＊ 계정이름은 타 계정과 중복될수 없습니다."/>
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/layout_create_account_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/create_account_text"
+            android:textColor="#000000"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress"
+            android:hint="계정이름을 입력해주세요." />
+    </android.support.design.widget.TextInputLayout>
+
+    <Button android:id="@+id/btn_create"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="계정 생성"
+        android:background="@color/bgcreateAccount"
+        android:layout_marginTop="20dp"
+        android:textColor="@android:color/white"/>
+    <Button android:id="@+id/btn_non"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="취소"
+        android:background="@color/colorPrimary"
+        android:layout_marginTop="3dp"
+        android:textColor="@android:color/black"/>
+</LinearLayout>

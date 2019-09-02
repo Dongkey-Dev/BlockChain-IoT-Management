@@ -59,7 +59,7 @@ public class NetworkManageActivity extends AppCompatActivity {
         try {
             jsonObject.put("pos","-1"); //post할 값을 넣어준다
             jsonObject.put("offset","-20");
-            jsonObject.put("account_name","network55");
+            jsonObject.put("account_name",networkname);
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="vertical"
+    android:fillViewport="true"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:textSize="40dp"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/colorPrimaryDark"
+        android:text="네트워크 참가"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="＊ 다른 스마트홈 네트워크에 참여합니다."
+        android:layout_marginBottom="5dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="＊ 다른 관리자가 지정한 네트워크 이름을 입력하세요"
+        android:layout_marginBottom="5dp"/>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/layout_join_network_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/join_network_text"
+            android:textColor="#000000"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress"
+            android:hint="네트워크 이름을 입력해주세요" />
+    </android.support.design.widget.TextInputLayout>
+
+    <Button android:id="@+id/btn_networkjoin"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="참가"
+        android:background="@color/bgcreateAccount"
+        android:layout_marginTop="20dp"
+        android:textColor="@android:color/white"/>
+
+    <Button android:id="@+id/btn_networkcancel2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="취소"
+        android:background="@color/colorPrimary"
+        android:layout_marginTop="3dp"
+        android:textColor="@android:color/black"/>
+</LinearLayout>
