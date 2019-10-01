@@ -25,18 +25,29 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Network_Create_Activity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".Create_Account_Activity"
+        <activity
+            android:name=".Target_info_control_Activity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".IoT_manage_Activity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".user_Join_accept_Activity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".IoT_Select_Activity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".Network_Create_Activity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".IoTinfoActivity"
+            android:name=".Create_Account_Activity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".userManageActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".IoTdeviceManageActivity"
+            android:name=".mijia_connect_Activity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".NetworkManageActivity"

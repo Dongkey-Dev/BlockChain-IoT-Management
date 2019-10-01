@@ -30,37 +30,33 @@ import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
-//IoT관리 페이지의 액티비티이다.
-public class IoTdeviceManageActivity extends AppCompatActivity {
+public class IoT_manage_Activity extends AppCompatActivity {
 
-    //IoT폼을 위한 리스트뷰와 어댑터 JAVA파일을 생성해야한다.
-    ListView listview; //리스트뷰 객체 생성
-    ListViewAdapterIoT adapter; //어댑터 생성
+    ListView listview;
+    ListViewAdapterIoT adapter;
     String networkname;
-    private DatabaseHelper DatabaseHelper; //데이터베이스 객체
-    SSHThread sshThread; //ssh를 사용할 쓰레드 선언
+    SSHThread sshThread;
     HTTPThread httpThread;
-    String p_key;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_iot_device_manage);
-
-        DatabaseHelper = new DatabaseHelper(IoTdeviceManageActivity.this,"eos.db",null,1);
-
-        //전 액티비티에서 보낸 네트워크 이름을 넘겨받는다
+        setContentView(R.layout.activity_iot_manage);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.iot_toolbar_manage);
         Intent intent = getIntent();
-        networkname = intent.getStringExtra("name");
+        networkname = intent.getStringExtra("networkname");
 
-        String url = "http://192.168.0.13:8888/v1/chain/get_account"; //rest api rul을 지정
-        //버튼 클릭시 ioT 이름을 텍스트창에서 가져온다
+        String url = "http://192.168.0.13:8888/v1/history/get_actions";
 
         JSONObject jsonObject = new JSONObject();
 
         try {
-            jsonObject.put("account_name",networkname); //post할 값을 넣어준다
+            jsonObject.put("pos","-1"); //post할 값을 넣어준다
+            jsonObject.put("offset","-20");
+            jsonObject.put("account_name",networkname);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -72,76 +68,90 @@ public class IoTdeviceManageActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        //DB에서 IoT기기 내역을 받아 리스트뷰로 나타내는 코드 구현
         adapter = new ListViewAdapterIoT();
         listview = (ListView) findViewById(R.id.ioT_listview);
-        Cursor cursor = DatabaseHelper.iotitem();
-        adapter.addItem(ContextCompat.getDrawable(IoTdeviceManageActivity.this, R.drawable.iot),cursor);
-        if(cursor.getCount() > 0) {
-            TextView IoTNolist = (TextView)findViewById(R.id.IoTNolist);
-            IoTNolist.setVisibility(View.GONE);
-        }
         adapter.notifyDataSetChanged();
         listview.setAdapter(adapter);
-
-
-        //화면의 위에 제목및 뒤로가기를생성하는 툴바이다.
-        Toolbar toolbar = findViewById(R.id.iot_manage_toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        //미완 IoT장치를 리스트뷰를 추가하기위해 사용할 클릭리스너이다.
-        //1. SSH를 사용해 컨트랙트 실행해 IoT장치 이름으로 넣음(명령어)
-        Button button = (Button) findViewById(R.id.IoTappend);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EditText iotcreate = (EditText)findViewById(R.id.iotcreate);
-                String iotname = iotcreate.getText().toString();
-
-                //SSH를 이용해  iOt장치를 생성한다
-                sshThread = new SSHThread("cleos create account eosio " + iotname + " " + p_key + " " + p_key);
-                sshThread.start();
-                try {
-                    sshThread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                //ssh를 이용해 iot장치를 추가한다.
-                sshThread = new SSHThread("cleos push action " + networkname + " attachdevice [\"" + iotname + "\"] -p " + iotname + "@active" );
-                sshThread.start();
-                try {
-                    sshThread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                //목록은 리스트뷰에 추가한다
-                TextView IoTNolist = (TextView)findViewById(R.id.IoTNolist);
-                IoTNolist.setVisibility(View.GONE);
-                adapter.addItem(ContextCompat.getDrawable(IoTdeviceManageActivity.this, R.drawable.iot), iotname);
-                adapter.notifyDataSetChanged();
-
-                //db에 저장한다.
-                IoT iot = new IoT();
-                iot.setName(iotname);
-                DatabaseHelper.addIoTlist(iot);
-            }
-
-        });
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home: {
-                finish();
-                return true;
+    public class HTTPThread extends Thread {
+        Context context; //액티비티의 컨택스트를 저장할 변수 현재 사용 x
+        String url; //url을 저장할 변수
+        String result; //결과값을 저장해 리턴하기위한 변수
+        TextView setText; //값을 나타낼 텍스트뷰 id 값
+        JSONObject value; //json으로 블록체인 서버에 보낼 값을 저장
+        Search_Json jsonvalue; // json추출을 위한 객체
+
+
+        //적용할 url, 나타낼 ui textview, JSONOBject값 입력해 사용 생성자
+        HTTPThread(String m_url, TextView m_keyvalue, JSONObject m_values) {
+            url = m_url;
+            this.setText = m_keyvalue;
+            this.value = m_values;
+
+        }
+        HTTPThread(String m_url, JSONObject m_values) {
+            url = m_url;
+            this.value = m_values;
+
+        }
+
+        //쓰레드 실행시 실행
+        public void run() {
+
+            NetworkTask networkTask = new NetworkTask(url, value); //url과 json값을 넘겨주어서 rest api 연결 객체 생성
+            networkTask.execute(); //실행
+        }
+
+        //연결을위한 클래스
+        public class NetworkTask extends AsyncTask<Void, Void, String> {
+
+            private String url; //url저장할 생성자
+            private JSONObject values; //json값 저장할 변수
+
+            //생성자
+            public NetworkTask(String url, JSONObject values) {
+
+                this.url = url;
+                this.values = values;
+            }
+
+            @Override
+            protected String doInBackground(Void... params) {
+
+                String result; // 요청 결과를 저장할 변수.
+                RequestHttpURLConnection requestHttpURLConnection = new RequestHttpURLConnection(); //RequestHttpURLConnection.java 파일의 객체 생성
+                result = requestHttpURLConnection.request(url, values); // 해당 URL로 부터 결과물을 얻어온다.
+
+                return result;
+            }
+
+            //여기에 iot이름,port, ip를 가져오게 해야한다 전체 수정해야함.
+            @Override
+            protected void onPostExecute(String s) {
+                String iottitle;
+
+                List<String> result = new ArrayList<>();
+                Search_Json sj = new Search_Json();
+                result = sj.Recent_user_device(s,"recentdevice");
+
+                for (int i = 0 ; i < result.size() ; i++) {
+                    iottitle = result.get(i);
+
+                    adapter.addItem(ContextCompat.getDrawable(IoT_manage_Activity.this, R.drawable.remote), iottitle);
+                    adapter.notifyDataSetChanged();
+                }
+                super.onPostExecute(s);
+
+
+
+                super.onPostExecute(s);
             }
         }
-        return super.onOptionsItemSelected(item);
     }
+
     public class SSHThread extends Thread {
         Context context;
         String Command;
@@ -220,69 +230,6 @@ public class IoTdeviceManageActivity extends AppCompatActivity {
             startcommand();
         }
     }
-    public class HTTPThread extends Thread {
-        Context context; //액티비티의 컨택스트를 저장할 변수 현재 사용 x
-        String url; //url을 저장할 변수
-        String result; //결과값을 저장해 리턴하기위한 변수
-        TextView setText; //값을 나타낼 텍스트뷰 id 값
-        JSONObject value; //json으로 블록체인 서버에 보낼 값을 저장
-        Search_Json jsonvalue; // json추출을 위한 객체
-
-
-        //적용할 url, 나타낼 ui textview, JSONOBject값 입력해 사용 생성자
-        HTTPThread(String m_url, TextView m_keyvalue, JSONObject m_values) {
-            url = m_url;
-            this.setText = m_keyvalue;
-            this.value = m_values;
-
-        }
-        HTTPThread(String m_url, JSONObject m_values) {
-            url = m_url;
-            this.value = m_values;
-
-        }
-
-        //쓰레드 실행시 실행
-        public void run() {
-
-            NetworkTask networkTask = new NetworkTask(url, value); //url과 json값을 넘겨주어서 rest api 연결 객체 생성
-            networkTask.execute(); //실행
-        }
-
-        //연결을위한 클래스
-        public class NetworkTask extends AsyncTask<Void, Void, String> {
-
-            private String url; //url저장할 생성자
-            private JSONObject values; //json값 저장할 변수
-
-            //생성자
-            public NetworkTask(String url, JSONObject values) {
-
-                this.url = url;
-                this.values = values;
-            }
-
-            @Override
-            protected String doInBackground(Void... params) {
-
-                String result; // 요청 결과를 저장할 변수.
-                RequestHttpURLConnection requestHttpURLConnection = new RequestHttpURLConnection(); //RequestHttpURLConnection.java 파일의 객체 생성
-                result = requestHttpURLConnection.request(url, values); // 해당 URL로 부터 결과물을 얻어온다.
-
-                return result;
-            }
-
-            @Override
-            protected void onPostExecute(String s) {
-                Search_Json sj = new Search_Json();
-                String ss = sj.Get_Accout_Public_key(s);
-                super.onPostExecute(ss);
-                p_key = ss;
-            }
-        }
-
-
-    }
     public class ListViewAdapterIoT extends BaseAdapter {
         // Adapter에 추가된 데이터를 저장하기 위한 ArrayList
         private ArrayList<ListViewIoTItem> listViewItemList = new ArrayList<ListViewIoTItem>();
@@ -327,8 +274,6 @@ public class IoTdeviceManageActivity extends AppCompatActivity {
                     ListViewIoTItem count = listViewItemList.get(pos);
                     listViewItemList.remove(count);
                     String deletename = count.getTitle();
-                    TextView textView = (TextView) findViewById(R.id.iotlist);
-                    textView.setText(deletename);
                     //ssh를 이용해 iot장치를 추가한다.
                     sshThread = new SSHThread("cleos push action " + networkname + " removedevice [\"" + deletename + "\"] -p " + deletename + "@active" );
                     sshThread.start();
@@ -337,7 +282,6 @@ public class IoTdeviceManageActivity extends AppCompatActivity {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    DatabaseHelper.deleteIoTlist(deletename);
                     adapter.notifyDataSetChanged();
                 }
             });

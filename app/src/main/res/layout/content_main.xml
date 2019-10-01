@@ -10,21 +10,20 @@
     tools:showIn="@layout/app_bar_main">
 
     <View
-        style="@style/Divider"
-        android:layout_marginHorizontal="30dp" />
+        style="@style/Divider"/>
 
 
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/NetworkNolist"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:textSize="24dp"
+            android:gravity="center_vertical|center"
+            android:textSize="15dp"
             android:text="등록된 네트워크가 없습니다."/>
 
         <ListView
@@ -33,7 +32,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:divider="#ffffff"
-            android:dividerHeight="4dp"></ListView>
+            android:divider="#fafafa"
+            android:dividerHeight="20dp"></ListView>
     </FrameLayout>
 </LinearLayout>

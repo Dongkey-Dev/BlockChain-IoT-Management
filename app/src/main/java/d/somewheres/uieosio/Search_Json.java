@@ -21,6 +21,79 @@ public class Search_Json {
     HashMap<String, List> result_Hash_Hash = new HashMap<String, List>();
 
 
+    public List Device_Ip_Port(String input, String which){
+        try {
+            JSONParser jsonParser = new JSONParser();
+            JSONObject jsonObj = (JSONObject) jsonParser.parse(input);
+            JSONArray actions = (JSONArray) jsonObj.get("actions");
+            for (int i = 0; i < actions.size(); i++) {
+                JSONObject first = (JSONObject) actions.get(i);
+                JSONObject action_trace = (JSONObject) first.get("action_trace");
+                JSONObject act = (JSONObject) action_trace.get("act");
+                String name = String.valueOf(act.get("name"));
+                JSONObject data = (JSONObject) act.get("data");
+                String dvice = String.valueOf(data.get("dvice"));
+                if (name.equals("attachdevice") && dvice.equals(which)) {
+                    String iaddr = String.valueOf(data.get("iaddr"));
+                    String port = String.valueOf(data.get("port"));
+                    this.result_list.add(iaddr);
+                    this.result_list.add(port);
+                }
+            }
+        }catch (ParseException e){
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return result_list;
+    }
+
+    public List Recent_user_device(String input, String which) {
+        List<String> device_list = new ArrayList<String>();
+        List<String> user_list = new ArrayList<String>();
+        try {
+            JSONParser jsonParser = new JSONParser();
+            JSONObject jsonObj = (JSONObject) jsonParser.parse(input);
+            JSONArray actions = (JSONArray) jsonObj.get("actions");
+            for (int i = 0; i < actions.size(); i++) {
+                JSONObject first = (JSONObject) actions.get(i);
+                JSONObject action_trace = (JSONObject) first.get("action_trace");
+                JSONObject act = (JSONObject) action_trace.get("act");
+                String name = String.valueOf(act.get("name"));
+                JSONObject data = (JSONObject) act.get("data");
+                if (which.equals("recentuser")) {
+                    if (name.equals("adduser")) {
+                        String wantuser = (String) data.get("wantuser");
+                        user_list.add(wantuser);
+                    }
+                    else if (name.equals("removeuser")) {
+                        String user = (String) data.get("user");
+                        user_list.remove(user);
+                    }
+                    result_list = user_list;
+                } else if (which.equals("recentdevice")) {
+                    if (name.equals("attachdevice")) {
+                        String dvice = (String) data.get("dvice");
+                        device_list.add(dvice);
+                    } else if (name.equals("removedevice")) {
+                        String dvice = (String) data.get("dvice");
+                        device_list.remove(dvice);
+                    }
+                    result_list = device_list;
+                }
+            }
+//            List<String> adddevice_list = new ArrayList<String>();
+//            adddevice_list = Parsing_Response(input, "attachdevice");
+//            HashSet<String> distinctData1 = new HashSet<String>(removedevice_list);
+//            removedevice_list = new ArrayList<String>(distinctData1);
+//            HashSet<String> distinctData2 = new HashSet<String>(adddevice_list);
+//            adddevice_list = new ArrayList<String>(distinctData2);
+//            adddevice_list.removeAll(removedevice_list);
+//            result_list = adddevice_list;
+        } catch (Exception e){
+            System.out.println(e);
+        }
+        return result_list;
+    }
 
     public List Parsing_Response(String input, String which){
         try {
@@ -41,10 +114,10 @@ public class Search_Json {
                     String targetdevice = String.valueOf(data.get("targetdevice"));
                     String push_data = String.valueOf(data.get("data"));
                     String block_time = String.valueOf(first.get("block_time"));
-                    this.result_list.add(" rqster: " + rqster + "\ntargetdevice: " + targetdevice + "\npush_data: " + push_data + "\nblock_time: " + block_time);
+                    this.result_list.add(" rqster_IS_" + rqster + "\ntargetdevice_IS_" + targetdevice + "\npush_data_IS_" + push_data + "\nblock_time_IS_" + block_time);
                 } else if (name.equals("adduser") && which.equals("adduser")) {
                     String wantuser = String.valueOf(data.get("wantuser"));
-                    this.result_list.add("adduser: " + wantuser);
+                    this.result_list.add("adduser_IS_" + wantuser);
                 }
             }
         }catch (ParseException e){
@@ -65,7 +138,7 @@ public class Search_Json {
                 JSONObject act = (JSONObject) action_trace.get("act");
                 String name = String.valueOf(act.get("name"));
                 JSONObject data = (JSONObject) act.get("data");
-                String rqster = String.valueOf(data.get("rqster"));
+                String rqster = String.valueOf(data.get("targetdevice"));
                 this.rqster_list.add(rqster);
                 this.rqster_list = rqster_list.stream()
                         .filter(rqster_list -> !"null".equals(rqster_list))
@@ -97,7 +170,6 @@ public class Search_Json {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        System.out.println("test_list : " + test_list.get(0));
 //        System.out.println("test_list[0][0]: "+test_list.get(0).get(0).toString().replace("[", "").replace("]", ""));
         List<String> myList = new ArrayList<String>();
         JSONObject result_json = new JSONObject();
@@ -143,11 +215,6 @@ public class Search_Json {
             result_Hash_Hash.put(temp_device.get(m), tmp);
 //            result_Hash_Hash.get(temp_device.get(m)).remove(0);
         }
-        System.out.println("==================================");
-        System.out.println(result_Hash.get(temp_device.get(0)).get(0));
-        System.out.println("----------------------------------");
-        System.out.println(per_iot);
-        System.out.println("----------------------------------");
         return result_Hash_Hash;
     }
 

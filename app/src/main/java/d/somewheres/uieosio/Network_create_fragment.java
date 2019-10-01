@@ -36,6 +36,8 @@ public class Network_create_fragment extends Fragment {
         View v = inflater.inflate(R.layout.network_create_fragment,container,false);
         EditText createnetworktext = (EditText) v.findViewById(R.id.create_network_text);
         Button createbutton = (Button) v.findViewById(R.id.btn_networkCreate);
+        Button cencelbutton = (Button) v.findViewById(R.id.btn_networkcancel);
+
         createbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -99,6 +101,16 @@ public class Network_create_fragment extends Fragment {
                     e.printStackTrace();
                 }
 
+
+                //SSH를 이용해 컨트랙트 실행해 관리자 측의 사용자를 네트워크에 참여시킨다
+                sshThread = new SSHThread("cleos push action " + name + " adduser [\"" + name + "\",\"" + username + "\"] -p " + username + "@active" );
+                sshThread.start();
+                try {
+                    sshThread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
                 //db에 추가
                 Network network = new Network();
                 network.setName(name);
@@ -112,6 +124,13 @@ public class Network_create_fragment extends Fragment {
                 Intent intent = new Intent(getActivity(),MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
+            }
+        });
+
+        cencelbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().finish();
             }
         });
         return v;
@@ -193,11 +212,21 @@ public class Network_create_fragment extends Fragment {
                 //명령어만 입력시 실행만
             } else if (trigger == 1) {
                 //지갑을 생성하는 명령어, 패스워드 리턴
-                tmpdata1 = result.substring(133 + username.length(), 186 + username.length());
+                try {
+                    tmpdata1 = result.substring(133 + username.length(), 186 + username.length());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw e;
+                }
             } else if (trigger == 2) {
                 //키를 생성해 프라이빗키와 퍼블릭키를 리턴
-                tmpdata1 = result.substring(12, 66);
-                tmpdata2 = result.substring(77, 130);
+                try {
+                    tmpdata1 = result.substring(12, 66);
+                    tmpdata2 = result.substring(77, 130);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw e;
+                }
             }
         }
         public void run() {

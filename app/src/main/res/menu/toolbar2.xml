@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/toolbar_plus_button_imamge"
+        android:icon="@drawable/ic_add_black_24dp"
+        android:title="추가버튼"
+        app:showAsAction="ifRoom">
+        <menu>
+            <item
+                android:id="@+id/toolbar_setting_button"
+                android:title="관리"
+                app:showAsAction="never"/>
+            <item android:id="@+id/toolbar_plus_button"
+                android:title="추가"
+                app:showAsAction="never"/>
+        </menu>
+    </item>
+</menu>

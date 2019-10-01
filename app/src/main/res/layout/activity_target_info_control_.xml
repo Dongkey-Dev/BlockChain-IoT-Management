@@ -5,21 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".NetworkManageActivity"
-    tools:showIn="@layout/app_bar_sub">
+    tools:context=".Target_info_control_Activity">
 
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/user_iot_change"
+        android:id="@+id/list_control_change"
         android:layout_weight="1">
 
     </FrameLayout>
-
-    <View
-        style="@style/Divider" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,21 +22,19 @@
         android:orientation="horizontal"
         android:layout_weight="9">
         <Button
-            android:id = "@+id/btn_IoTmanage"
+            android:id = "@+id/btn_control_list"
             android:layout_margin="10dp"
             android:layout_width="100dp"
             android:layout_weight="1"
-            android:background="@color/colorPrimary"
             android:layout_height="match_parent"
-            android:text = "장치 목록"/>
+            android:text = "조작내역 조회"/>
         <Button
-            android:id = "@+id/btn_usermanage"
+            android:id = "@+id/btn_control_device"
             android:layout_width="100dp"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:background="@color/colorPrimary"
             android:layout_height="match_parent"
-            android:text = "사용자 목록"/>
+            android:text = "장치 조작하기"/>
 
     </LinearLayout>
 </LinearLayout>

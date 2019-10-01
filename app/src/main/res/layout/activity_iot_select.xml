@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="vertical"
+    android:fillViewport="true"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    tools:context=".IoT_Select_Activity">
+
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:textSize="40dp"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/colorPrimaryDark"
+        android:text="장치 등록"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="＊ 스마트홈 네트워크에 장치를 등록합니다."
+        android:layout_marginBottom="5dp"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="＊ 장치를 선택해주세요."
+        android:layout_marginBottom="5dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+
+        <ImageButton
+            android:id="@+id/mijia"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="0dp"
+            android:layout_weight="1"
+            android:src="@drawable/mijia"/>
+
+        <View
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:background="#808080"/>
+
+        <ImageButton
+            android:id="@+id/razbery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="0dp"
+            android:layout_weight="1"
+            android:src="@drawable/ondo"/>
+
+
+    </LinearLayout>
+</LinearLayout>

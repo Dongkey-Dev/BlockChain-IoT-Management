@@ -1,45 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".NetworkManageActivity">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="40dp"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        >
 
 
-        <!--화면 상단의 툴바를 위한 xml이다.-->
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar2"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:theme="@style/Toolbar"
-            app:popupTheme="@style/AppTheme.PopupOverlay">
 
-
-            <!--툴바 제목-->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Network Title"
-                android:layout_gravity="center"
-                android:id="@+id/toolbar_title2"
-                android:textSize="20dp"
-                android:textColor="@color/colorPrimaryDark"
-                />
-        </android.support.v7.widget.Toolbar>
-
-    </android.support.design.widget.AppBarLayout>
-
-    <!--툴바 및의 메인 xml을 include한 것이다-->
+    <!--툴바 밑의 메인 xml을 include한 것이다-->
     <include
         layout="@layout/content_network" />
 
-</android.support.design.widget.CoordinatorLayout>
+</LinearLayout>

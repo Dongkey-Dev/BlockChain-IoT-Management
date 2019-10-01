@@ -21,6 +21,7 @@
             android:id="@+id/NetworkfragmentButton1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
             android:text="네트워크 생성"
             android:layout_weight="1"/>
 
@@ -29,6 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="네트워크 참여"
+            android:background="@color/colorPrimary"
             android:layout_weight="1"/>
 
     </LinearLayout>

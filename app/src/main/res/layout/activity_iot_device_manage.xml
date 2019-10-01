@@ -1,26 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:openDrawer="start">
-    <!--툴바를 include-->
-    <include
-        layout="@layout/app_bar_iot"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".mijia_connect_Activity">
 
-    <!--네비게이션을 나타낸다.-->
-    <android.support.design.widget.NavigationView
-        android:id="@+id/nav_view3"
+
+    <TextView
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:textSize="40dp"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/colorPrimaryDark"
+        android:text="장치 추가"/>
 
-</android.support.v4.widget.DrawerLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="＊ 샤오미 미지아 무드등과 연결합니다."
+        android:layout_marginBottom="5dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="＊ 장치검색 버튼 클릭 후 검색되는 장치를 클릭해주세요."
+        android:layout_marginBottom="5dp"/>
+
+
+    <Button
+        android:id="@+id/btn_search"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search"
+        />
+
+    <ListView
+        android:id="@+id/deviceList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></ListView>
+</LinearLayout>

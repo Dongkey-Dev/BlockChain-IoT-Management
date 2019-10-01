@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,8 +25,12 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class userManageActivity extends AppCompatActivity {
@@ -36,63 +41,49 @@ public class userManageActivity extends AppCompatActivity {
     String networkname;
     private DatabaseHelper DatabaseHelper; //데이터베이스 객체
     SSHThread sshThread;
+    HTTPThread httpThread;
+    JSONObject jsonObject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_manage);
-        DatabaseHelper = new DatabaseHelper(userManageActivity.this,"eos.db",null,1);
 
         //전 액티비티에서 보낸 네트워크 이름을 넘겨받는다
         Intent intent = getIntent();
-        networkname = intent.getStringExtra("name");
+        networkname = intent.getStringExtra("networkname");
 
+        String url = "http://192.168.0.13:8888/v1/history/get_actions";
+
+        jsonObject = new JSONObject();
+
+        try {
+            jsonObject.put("pos","-1"); //post할 값을 넣어준다
+            jsonObject.put("offset","-20");
+            jsonObject.put("account_name",networkname);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        //네트워크이름에 대한 공용키를 얻어온다.
+        httpThread = new HTTPThread(url,jsonObject);
+        httpThread.start(); //시작
+        try {
+            httpThread.join(); //쓰레드 끝날떄까지 멈춤
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         //사용자 목록을 받아 리스트뷰로 나타내는 코드 구현
         adapter = new ListViewuserAdapter();
-        listview = (ListView) findViewById(R.id.userlistview);
-        Cursor cursor = DatabaseHelper.useritem();
-        adapter.addItem(ContextCompat.getDrawable(userManageActivity.this, R.drawable.user),cursor);
-        if(cursor.getCount() > 0) {
-            TextView userNolist = (TextView)findViewById(R.id.controllist);
-            userNolist.setVisibility(View.GONE);
-        }
+        listview = (ListView) findViewById(R.id.user_listview);
+
         adapter.notifyDataSetChanged();
         listview.setAdapter(adapter);
 
-        Toolbar toolbar = findViewById(R.id.usermanage_toolbar);
+        Toolbar toolbar = findViewById(R.id.user_toolbar_manage);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Button button = (Button) findViewById(R.id.userappend);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //버튼 클릭시 사용자 이름을 텍스트창에서 가져온다
-                EditText usercreate = (EditText)findViewById(R.id.usercreate);
-                String username = usercreate.getText().toString();
-
-                //SSH를 이용해 컨트랙트 실행해 사용자를 넣는다
-                sshThread = new SSHThread("cleos push action " + networkname + " adduser [\"" + networkname + "\",\"" + username + "\"] -p " + networkname + "@active" );
-                sshThread.start();
-                try {
-                    sshThread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                //목록은 리스트뷰에 추가한다
-                TextView userNolist = (TextView)findViewById(R.id.controllist);
-                userNolist.setVisibility(View.GONE);
-                adapter.addItem(ContextCompat.getDrawable(userManageActivity.this, R.drawable.user), username);
-                adapter.notifyDataSetChanged();
-
-                //db에 저장한다.
-                User user = new User();
-                user.setName(username);
-                DatabaseHelper.adduserlist(user);
-            }
-        });
     }
 
     @Override
@@ -105,11 +96,12 @@ public class userManageActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
     public class SSHThread extends Thread {
         Context context;
         String Command;
         String result;
-        int trigger=0; //서브스트링을 구분하기위한 트리거, 0이면 기본 명령값
+        int trigger = 0; //서브스트링을 구분하기위한 트리거, 0이면 기본 명령값
 
         //텍스트뷰를 나타내기 위한 생성자
 
@@ -119,12 +111,10 @@ public class userManageActivity extends AppCompatActivity {
             Command = m_command;
         }
 
-        SSHThread(int trigger,String m_command) {
+        SSHThread(int trigger, String m_command) {
             this.trigger = trigger;
             Command = m_command;
         }
-
-
 
 
         public void startcommand() {
@@ -179,13 +169,15 @@ public class userManageActivity extends AppCompatActivity {
                 //명령어만 입력시 실행만
             }
         }
+
         public void run() {
             startcommand();
         }
     }
+
     public class ListViewuserAdapter extends BaseAdapter {
         // Adapter에 추가된 데이터를 저장하기 위한 ArrayList
-        private ArrayList<ListViewuserItem> listViewItemList = new ArrayList<ListViewuserItem>() ;
+        private ArrayList<ListViewuserItem> listViewItemList = new ArrayList<ListViewuserItem>();
 
         // ListViewAdapter의 생성자
         public ListViewuserAdapter() {
@@ -195,7 +187,7 @@ public class userManageActivity extends AppCompatActivity {
         // Adapter에 사용되는 데이터의 개수를 리턴
         @Override
         public int getCount() {
-            return listViewItemList.size() ;
+            return listViewItemList.size();
         }
 
         // position에 위치한 데이터를 화면에 출력하는데 사용될 View를 리턴
@@ -211,31 +203,28 @@ public class userManageActivity extends AppCompatActivity {
             }
 
             // 화면에 표시될 View(Layout이 inflate된)으로부터 위젯에 대한 참조 획득
-            ImageView iconImageView = (ImageView) convertView.findViewById(R.id.imageView3) ;
-            TextView titleTextView = (TextView) convertView.findViewById(R.id.usertitle) ;
-
+            ImageView iconImageView = (ImageView) convertView.findViewById(R.id.imageView3);
+            TextView titleTextView = (TextView) convertView.findViewById(R.id.usertitle);
+            Button button = (Button) convertView.findViewById(R.id.userbutton);
             // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
             ListViewuserItem listViewItem = listViewItemList.get(position);
 
             // 아이템 내 각 위젯에 데이터 반영
             iconImageView.setImageDrawable(listViewItem.getIcon());
             titleTextView.setText(listViewItem.getTitle());
-            Button button1 = (Button) convertView.findViewById(R.id.userbutton);
-            button1.setOnClickListener(new Button.OnClickListener() {
+            button.setOnClickListener(new Button.OnClickListener() {
                 public void onClick(View v) {
                     ListViewuserItem count = listViewItemList.get(pos);
                     listViewItemList.remove(count);
                     String deletename = count.getTitle();
-                    //ssh를 이용해 유저를 삭제한다
-                    sshThread = new SSHThread("cleos push action " + networkname + " removeuser [\"" + deletename + "\"] -p " + deletename + "@active" );
+                    //ssh를 이용해 iot장치를 추가한다.
+                    sshThread = new SSHThread("cleos push action " + networkname + " removeuser [\"" + deletename + "\"] -p " + deletename + "@active");
                     sshThread.start();
                     try {
                         sshThread.join();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    DatabaseHelper.deleteuserlist(deletename);
-                    adapter.notifyDataSetChanged();
                 }
             });
 
@@ -245,13 +234,13 @@ public class userManageActivity extends AppCompatActivity {
         // 지정한 위치(position)에 있는 데이터와 관계된 아이템(row)의 ID를 리턴. : 필수 구현
         @Override
         public long getItemId(int position) {
-            return position ;
+            return position;
         }
 
         // 지정한 위치(position)에 있는 데이터 리턴 : 필수 구현
         @Override
         public Object getItem(int position) {
-            return listViewItemList.get(position) ;
+            return listViewItemList.get(position);
         }
 
         // 아이템 데이터 추가를 위한 함수. 개발자가 원하는대로 작성 가능.
@@ -263,6 +252,7 @@ public class userManageActivity extends AppCompatActivity {
 
             listViewItemList.add(item);
         }
+
         //cursor를 이용해서 리스트뷰에 아이템 추가
         public void addItem(Drawable icon, Cursor cursor) {
 
@@ -277,4 +267,79 @@ public class userManageActivity extends AppCompatActivity {
         }
     }
 
+    public class HTTPThread extends Thread {
+        Context context; //액티비티의 컨택스트를 저장할 변수 현재 사용 x
+        String url; //url을 저장할 변수
+        String result; //결과값을 저장해 리턴하기위한 변수
+        TextView setText; //값을 나타낼 텍스트뷰 id 값
+        JSONObject value; //json으로 블록체인 서버에 보낼 값을 저장
+        Search_Json jsonvalue; // json추출을 위한 객체
+
+
+        //적용할 url, 나타낼 ui textview, JSONOBject값 입력해 사용 생성자
+        HTTPThread(String m_url, TextView m_keyvalue, JSONObject m_values) {
+            url = m_url;
+            this.setText = m_keyvalue;
+            this.value = m_values;
+
+        }
+
+        HTTPThread(String m_url, JSONObject m_values) {
+            url = m_url;
+            this.value = m_values;
+
+        }
+
+        //쓰레드 실행시 실행
+        public void run() {
+
+            NetworkTask networkTask = new NetworkTask(url, value); //url과 json값을 넘겨주어서 rest api 연결 객체 생성
+            networkTask.execute(); //실행
+        }
+
+        //연결을위한 클래스
+        public class NetworkTask extends AsyncTask<Void, Void, String> {
+
+            private String url; //url저장할 생성자
+            private JSONObject values; //json값 저장할 변수
+
+            //생성자
+            public NetworkTask(String url, JSONObject values) {
+
+                this.url = url;
+                this.values = values;
+            }
+
+            @Override
+            protected String doInBackground(Void... params) {
+
+                String result; // 요청 결과를 저장할 변수.
+                RequestHttpURLConnection requestHttpURLConnection = new RequestHttpURLConnection(); //RequestHttpURLConnection.java 파일의 객체 생성
+                result = requestHttpURLConnection.request(url, values); // 해당 URL로 부터 결과물을 얻어온다.
+
+                return result;
+            }
+
+            //여기에 iot이름,port, ip를 가져오게 해야한다 전체 수정해야함.
+            @Override
+            protected void onPostExecute(String s) {
+                String username;
+
+                List<String> result = new ArrayList<>();
+                Search_Json sj = new Search_Json();
+                result = sj.Recent_user_device(s,"recentuser");
+                for (int i = 0 ; i < result.size() ; i++) {
+                    username = result.get(i);
+
+                    adapter.addItem(ContextCompat.getDrawable(userManageActivity.this, R.drawable.user), username);
+                    adapter.notifyDataSetChanged();
+                }
+                super.onPostExecute(s);
+
+            }
+
+
+        }
+
+    }
 }

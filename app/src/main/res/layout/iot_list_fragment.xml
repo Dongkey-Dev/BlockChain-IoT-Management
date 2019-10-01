@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="vertical"
+    android:fillViewport="true"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp">
+
+    <android.support.design.widget.AppBarLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="40dp"
+    android:theme="@style/AppTheme.AppBarOverlay"
+    >
+
+
+    <!--화면 상단의 툴바를 위한 xml이다.-->
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/iot_toolbar1"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/Toolbar"
+        android:popupTheme="@style/AppTheme.PopupOverlay">
+
+
+        <!--툴바 제목-->
+        <TextView
+            android:layout_marginHorizontal="30dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="장치 목록"
+            android:layout_gravity="center"
+            android:id="@+id/toolbar_title2"
+            android:textSize="20dp"
+            android:textColor="@color/colorPrimaryDark"
+            />
+    </android.support.v7.widget.Toolbar>
+
+</android.support.design.widget.AppBarLayout>
+
+    <View
+        style="@style/Divider" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/noiotcontrollist"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|center"
+            android:textSize="15dp"
+            android:text="등록된 장치가 없습니다"/>
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="#fafafa"
+            android:dividerHeight="20dp"
+            android:id="@android:id/list"/>
+
+    </FrameLayout>
+</LinearLayout>

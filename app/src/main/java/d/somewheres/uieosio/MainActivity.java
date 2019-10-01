@@ -89,6 +89,8 @@ public class MainActivity extends AppCompatActivity
         if (!file.exists()) {
             Intent intent = new Intent(getApplicationContext(),Create_Account_Activity.class);
             startActivity(intent);
+
+
         } else {
             DatabaseHelper = new DatabaseHelper(MainActivity.this,"eos.db",null,1);
 
@@ -115,16 +117,23 @@ public class MainActivity extends AppCompatActivity
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+
             adapter = new ListViewAdapter();
             listview = (ListView) findViewById(R.id.listview1);
 
             Cursor cursor = DatabaseHelper.networkitem();
+
+
+
 
             adapter.addItem(ContextCompat.getDrawable(MainActivity.this, R.drawable.network),cursor);
             if(cursor.getCount() > 0) {
                 TextView NetworkNolist = (TextView)findViewById(R.id.NetworkNolist);
                 NetworkNolist.setVisibility(View.GONE);
             }
+
+
             adapter.notifyDataSetChanged();
             listview.setAdapter(adapter);
             //아이템 클릭시 그 네트워크의 ioT및 사용자를 관리할수있는 액티비티로 전환 및 값을 넘겨준다
@@ -132,8 +141,8 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Intent intent = new Intent(getApplicationContext(), NetworkManageActivity.class);
-                    intent.putExtra("name",adapter.getname(i));
-                    intent.putExtra("account",account);
+                    intent.putExtra("networkname",adapter.getname(i));
+                    intent.putExtra("account",adapter.getaccount(i));
 
 
                     startActivity(intent);
@@ -233,7 +242,6 @@ public class MainActivity extends AppCompatActivity
         String result;
         int trigger=0; //서브스트링을 구분하기위한 트리거, 0이면 기본 명령값
 
-        //텍스트뷰를 나타내기 위한 생성자
 
 
         //명령어를 단순 실행하기위한 생성자
@@ -301,11 +309,21 @@ public class MainActivity extends AppCompatActivity
                 //명령어만 입력시 실행만
             } else if (trigger == 1) {
                 //지갑을 생성하는 명령어, 패스워드 리턴
-                tmpdata1 = result.substring(133 + username.length(), 186 + username.length());
+                try {
+                    tmpdata1 = result.substring(133 + username.length(), 186 + username.length());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw e;
+                }
             } else if (trigger == 2) {
                 //키를 생성해 프라이빗키와 퍼블릭키를 리턴
-                tmpdata1 = result.substring(12, 66);
-                tmpdata2 = result.substring(77, 130);
+                try {
+                    tmpdata1 = result.substring(12, 66);
+                    tmpdata2 = result.substring(77, 130);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw e;
+                }
             }
         }
         public void run() {

@@ -24,8 +24,6 @@
         android:id="@+id/userbutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="삭제"
-        android:textSize="18dp" />
+        android:text="삭제"/>
 
 </LinearLayout>

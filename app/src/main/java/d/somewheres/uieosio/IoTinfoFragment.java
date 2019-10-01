@@ -3,12 +3,16 @@ package d.somewheres.uieosio;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.ListFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -21,33 +25,36 @@ import java.util.HashMap;
 import java.util.List;
 
 //이 액티비티는 IoT이름을 전달받아서 IoT 장비의 시간대별 조작내역을 다 나타냄.
-public class IoTinfoActivity extends AppCompatActivity {
+public class IoTinfoFragment extends ListFragment {
     String IoTname;
     String networkname;
     ListView listview; //리스트뷰 객체 생성
     ListViewAdapterIoTinfo adapter; //어댑터 생성
     HTTPThread httpThread;
+    View v;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_iotinfo);
-        setTitle(IoTname);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        v = inflater.inflate(R.layout.iotinfo_fragment,container,false);
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
 
-
+        if(getArguments() != null) {
+            //네트워크 이름을 파라메터로 받음
+            networkname = getArguments().getString("networkname");
+            IoTname = getArguments().getString("name");
+        }
 
 
         //rest api 가져올 url 세팅
         String url = "http://192.168.0.13:8888/v1/history/get_actions";
         //IoT이름을 받음(나중에 이름에따라서 REST API로 값 추출
-        Intent intent = getIntent();
-        IoTname = intent.getStringExtra("name");
-        networkname = intent.getStringExtra("networkname");
+
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("pos","-1"); //post할 값을 넣어준다
             jsonObject.put("offset","-20");
-            jsonObject.put("account_name","network55");
+            jsonObject.put("account_name",networkname);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -61,13 +68,20 @@ public class IoTinfoActivity extends AppCompatActivity {
         }
 
         adapter = new ListViewAdapterIoTinfo();
-        listview = (ListView) findViewById(R.id.IoTinfolistview);
 
         //장치 내용과 시간목록을 받아서 어댑터에 추가
         //adapter.addItem());
+        setListAdapter(adapter);
+
+
         adapter.notifyDataSetChanged();
-        listview.setAdapter(adapter);
+
+
+        return v;
+
+
     }
+
 
     public class HTTPThread extends Thread {
         Context context; //액티비티의 컨택스트를 저장할 변수 현재 사용 x
@@ -129,25 +143,26 @@ public class IoTinfoActivity extends AppCompatActivity {
                 HashMap<String, List> result = new HashMap<String, List>();
                 Search_Json sj = new Search_Json();
                 result = sj.Lookup_device_detail2(s);
-                TextView controllist = (TextView)findViewById(R.id.iotcontrollist);
+                TextView controllist = (TextView)v.findViewById(R.id.iotcontrollist);
 
-
-                iottmp = result.get(IoTname);
-                for (int i=0;i<result.get(IoTname).size();i++) {
-                    if (i% 2 == 0) {
-                        iotdata.add(iottmp.get(i));
-                    } else {
-                        iottime.add(iottmp.get(i));
+                if(result.size() != 0) {
+                    iottmp = result.get(IoTname);
+                    for (int i = 0; i < result.get(IoTname).size(); i++) {
+                        if (i % 2 == 0) {
+                            iotdata.add(iottmp.get(i));
+                        } else {
+                            iottime.add(iottmp.get(i));
+                        }
                     }
-                }
 
-                for (int i=0;i<iotdata.size();i++) {
-                    String year = iottime.get(i).substring(0,10);
-                    String time = iottime.get(i).substring(11,19);
-                    String sum1 = year + "  " + time;
-                    adapter.addItem(iotdata.get(i), sum1);
-                    adapter.notifyDataSetChanged();
-                    controllist.setVisibility(View.GONE);
+                    for (int i = 0; i < iotdata.size(); i++) {
+                        String year = iottime.get(i).substring(0, 10);
+                        String time = iottime.get(i).substring(11, 19);
+                        String sum1 = year + "  " + time;
+                        adapter.addItem(iotdata.get(i), sum1);
+                        adapter.notifyDataSetChanged();
+                        controllist.setVisibility(View.GONE);
+                    }
                 }
                 super.onPostExecute(s);
 

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".userManageActivity">
+    tools:context=".IoT_manage_Activity">
 
     <!--화면을 나타내는 내용을 구성하는 xml파일이다.-->
     <!--선을 그릴수있는 뷰이다.-->
@@ -22,7 +22,7 @@
 
         <!--화면 상단의 툴바를 위한 xml이다.-->
         <android.support.v7.widget.Toolbar
-            android:id="@+id/user_toolbar_manage"
+            android:id="@+id/iot_toolbar_manage"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
@@ -32,12 +32,12 @@
 
             <!--툴바 제목-->
             <TextView
-                android:id="@+id/toolbar_title_usermanage"
+                android:id="@+id/toolbar_title_manage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="30dp"
-                android:text="사용자 목록"
+                android:text="장치 목록"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="20dp" />
         </android.support.v7.widget.Toolbar>
@@ -52,7 +52,7 @@
         android:background="@drawable/border">
 
         <TextView
-            android:id="@+id/userNolist"
+            android:id="@+id/IoTNolist"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
@@ -60,7 +60,7 @@
             android:text="등록된 장치가 없습니다."/>
 
         <ListView
-            android:id="@+id/user_listview"
+            android:id="@+id/ioT_listview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"

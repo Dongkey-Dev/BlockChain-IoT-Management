@@ -43,7 +43,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         StringBuffer cb = new StringBuffer();
         cb.append(" CREATE TABLE if not exists iot_tb ( ");
         cb.append(" _ID INTEGER PRIMARY KEY AUTOINCREMENT, ");
-        cb.append(" IOTNAME TEXT ) ");
+        cb.append(" IOTNAME TEXT, ");
+        cb.append(" IP TEXT, ");
+        cb.append(" PORT TEXT ) ");
         db.execSQL(cb.toString());
 
         //사용자 리스트 테이블
@@ -145,13 +147,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //iot관리 파트 부분
     public void addIoTlist(IoT iot) {
         String name = iot.getName();
+        String ip = iot.getIp();
+        String port = iot.getPort();
         SQLiteDatabase db = getWritableDatabase();
 
         // 데이터를 넣는다
-        String sql = String.format("INSERT INTO iot_tb(IOTNAME) VALUES('" + name + "');");
+        String sql = String.format("INSERT INTO iot_tb(IOTNAME, IP, PORT) VALUES('" + name + "','" + ip + "','" + port + "');");
         db.execSQL(sql);
 
     }
+
+
     public Cursor iotitem() {
         SQLiteDatabase db = getReadableDatabase();
         StringBuffer sb = new StringBuffer();

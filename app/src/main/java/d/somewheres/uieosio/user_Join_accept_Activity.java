@@ -16,31 +16,33 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Properties;
 
-public class Create_Account_Activity extends AppCompatActivity {
+public class user_Join_accept_Activity extends AppCompatActivity {
 
-    private DatabaseHelper DatabaseHelper; //데이터베이스 객체
     String tmpdata1,tmpdata2;
     String username;
     SSHThread sshThread;
+    String networkname;
+    String account;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_account);
+        setContentView(R.layout.activity_user_join_accept);
 
-        EditText create_account_text = (EditText)findViewById(R.id.create_account_text);
+        Intent intent = getIntent();
+        networkname = intent.getStringExtra("networkname");
+        account = "관리자";
 
+        EditText join_account_text = (EditText)findViewById(R.id.join_account_EditText);
 
-        //확인버튼 클릭 시
-        Button btn_create = (Button) findViewById(R.id.btn_create);
+        Button btn_create = (Button) findViewById(R.id.btn_join);
         btn_create.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatabaseHelper = new DatabaseHelper(Create_Account_Activity.this,"eos.db",null,1);
-                username = create_account_text.getText().toString();
+                username = join_account_text.getText().toString();
 
-                // (초기접속시) 계정을 생성할때 ssh로 먼저 지갑을 계정이름과 같게 만들고(명령어)
-                // tmp1변수에 패스워드 추출해 줘야합니다.
-                sshThread = new SSHThread(1,"cleos wallet create -n " + username + " --to-console");
+                //SSH를 이용해 컨트랙트 실행해 사용자를 넣는다
+                sshThread = new SSHThread("cleos push action " + networkname + " adduser [\"" + networkname + "\",\"" + username + "\"] -p " + username + "@active" );
                 sshThread.start();
                 try {
                     sshThread.join();
@@ -48,77 +50,14 @@ public class Create_Account_Activity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                // db에 비밀번호를 저장 // 추출한 패스워드값 넣어야함
-                Person person = new Person();
-                person.setPassword(tmpdata1);
-
-                // db에 저장된걸로 지갑을 먼저 연다음(명령어)
-                sshThread = new SSHThread("cleos wallet unlock --name " + username + " --password " + tmpdata1);
-                sshThread.start();
-                try {
-                    sshThread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                // 키를 발급받고(명령어) //여기서 프라이빗키(지갑에 넣기위해 얻어옴), 퍼블릭키(저장)를 받아와야한다
-                sshThread = new SSHThread(2,"cleos create key --to-console");
-                sshThread.start();
-                try {
-                    sshThread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                String privatekey = tmpdata1;
-                String publickey = tmpdata2;
-                // 비공개키는 지갑에넣음(명령어) 공개키는 계정생성할때 씀(공개키는 저장)
-                sshThread = new SSHThread("cleos wallet import -n "+ username + " --private-key " + privatekey);
-                sshThread.start();
-                try {
-                    sshThread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                // eosio 스태틱값 넣음
-                sshThread = new SSHThread("cleos wallet import -n "+ username + " --private-key 5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
-                sshThread.start();
-                try {
-                    sshThread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                //계정생성
-                sshThread = new SSHThread("cleos create account eosio "+ username + " " + publickey + " " + publickey);
-                sshThread.start();
-                try {
-                    sshThread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                // (동시에진행)
-                person.setName(username);
-                person.setUserkey(tmpdata2);
-                DatabaseHelper.addPerson(person); // db에 업데이트
-
-
-
-                //intent로 메인 액티비티를 새로고침한다.
-                Intent intent = new Intent(Create_Account_Activity.this, MainActivity.class);
+                Intent intent = new Intent(user_Join_accept_Activity.this, NetworkManageActivity.class);
+                intent.putExtra("networkname",networkname);
+                intent.putExtra("account", account);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
-
-            }
-        });
-        Button btn_non = (Button) findViewById(R.id.btn_non);
-        btn_non.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
             }
         });
     }
-
     public class SSHThread extends Thread {
         Context context;
         String Command;
