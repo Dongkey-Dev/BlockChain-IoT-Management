@@ -39,7 +39,7 @@ public class Network_join_fragment extends Fragment {
         EditText joinnetworktext = (EditText) v.findViewById(R.id.join_network_text);
         Button cencelbutton = (Button) v.findViewById(R.id.btn_networkcancel2);
         Button joinbutton = (Button) v.findViewById(R.id.btn_networkjoin);
-        String url = "http://192.168.0.13:8888/v1/history/get_actions";
+        String url = "http://192.168.0.13:8888/v1/chain/get_account";
 
 
         //리스너에 getaccount로 네트워크 계정이 있는지 파악한 뒤, 있으면 생성, 없으면 오류 (구현해야한다)
@@ -53,10 +53,8 @@ public class Network_join_fragment extends Fragment {
                 name = joinnetworktext.getText().toString();
 
                 jsonObject = new JSONObject();
-
+                System.out.println("테스트" + name);
                 try {
-                    jsonObject.put("pos","-1"); //post할 값을 넣어준다
-                    jsonObject.put("offset","-20");
                     jsonObject.put("account_name",name);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -140,9 +138,10 @@ public class Network_join_fragment extends Fragment {
             protected void onPostExecute(String s) {
                 String tmp= null;
                 Search_Json sj = new Search_Json();
-                tmp = sj.Get_Account_names(s);
-
-                if(name == tmp) {
+                System.out.println("테스트 :" + s);
+                tmp = sj.Get_Account_ID(s);
+                System.out.println("테스트: " + sj.Get_Account_ID(s));
+                if(name.equals(tmp)) {
                     //db에 추가
                     Network network = new Network();
                     network.setName(name);

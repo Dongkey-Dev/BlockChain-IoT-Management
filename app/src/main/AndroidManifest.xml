@@ -28,8 +28,7 @@
         <activity
             android:name=".Target_info_control_Activity"/>
         <activity
-            android:name=".IoT_manage_Activity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:name=".IoT_manage_Activity" />
         <activity
             android:name=".user_Join_accept_Activity"/>
         <activity
@@ -39,8 +38,7 @@
         <activity
             android:name=".Create_Account_Activity"/>
         <activity
-            android:name=".userManageActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:name=".userManageActivity" />
         <activity
             android:name=".mijia_connect_Activity"/>
         <activity

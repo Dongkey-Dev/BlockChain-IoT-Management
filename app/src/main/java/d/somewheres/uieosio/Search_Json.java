@@ -40,9 +40,9 @@ public class Search_Json {
                     this.result_list.add(port);
                 }
             }
-        }catch (ParseException e){
+        }catch (Exception e){
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            return null;
         }
         return result_list;
     }
@@ -91,6 +91,7 @@ public class Search_Json {
 //            result_list = adddevice_list;
         } catch (Exception e){
             System.out.println(e);
+            return null;
         }
         return result_list;
     }
@@ -120,9 +121,10 @@ public class Search_Json {
                     this.result_list.add("adduser_IS_" + wantuser);
                 }
             }
-        }catch (ParseException e){
+        }catch (Exception e){
             // TODO Auto-generated catch block
             e.printStackTrace();
+            return null;
         }
         return result_list;
     }
@@ -253,9 +255,10 @@ public class Search_Json {
                     }
                 }
             }
-        }catch (ParseException e){
+        }catch (Exception e){
             // TODO Auto-generated catch block
             e.printStackTrace();
+            return null;
         }
         System.out.println(per_iot);
         return per_iot;
@@ -264,7 +267,7 @@ public class Search_Json {
         try {
             JSONParser jsonParser = new JSONParser();
             JSONObject jsonObj = (JSONObject) jsonParser.parse(input);
-            JSONArray accountId = (JSONArray) jsonObj.get("account_names");
+            JSONArray accountId = (JSONArray) jsonObj.get("account_name");
             this.result = String.valueOf(accountId);
         } catch (ParseException e) {
             // TODO Auto-generated catch block
@@ -284,9 +287,9 @@ public class Search_Json {
             JSONObject second = (JSONObject) keys.get(0);
             String key = (String) second.get("key");
             this.result = String.valueOf(key);
-        } catch (ParseException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            return null;
         }
         return result;
     }
@@ -297,9 +300,9 @@ public class Search_Json {
             JSONObject jsonObj = (JSONObject) jsonParser.parse(input);
             String accountId = (String) jsonObj.get("head_block_time");
             this.result = String.valueOf(accountId);
-        } catch (ParseException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            return null;
         }
         return result;
     }
@@ -310,9 +313,9 @@ public class Search_Json {
             JSONObject jsonObj = (JSONObject) jsonParser.parse(input);
             String accountId = (String) jsonObj.get("created");
             this.result = String.valueOf(accountId);
-        } catch (ParseException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            return null;
         }
         return result;
     }
@@ -323,9 +326,9 @@ public class Search_Json {
             JSONObject jsonObj = (JSONObject) jsonParser.parse(input);
             String accountId = (String) jsonObj.get("account_name");
             this.result = String.valueOf(accountId);
-        } catch (ParseException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            return null;
         }
         return result;
     }
