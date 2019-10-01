@@ -60,7 +60,7 @@
             android:layout_height="wrap_content"
             android:padding="0dp"
             android:layout_weight="1"
-            android:src="@drawable/ondo"/>
+            android:src="@drawable/razbery"/>
 
 
     </LinearLayout>

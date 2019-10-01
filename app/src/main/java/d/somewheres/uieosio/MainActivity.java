@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity
 
 
         } else {
+
             DatabaseHelper = new DatabaseHelper(MainActivity.this,"eos.db",null,1);
 
             //(초기접속이 아닐시) 계정이 있으면 안드로이드 로컬db에 저장된 사용자 계정을 꺼내와 rest_api로 비교 키값 받아옴
@@ -136,6 +137,8 @@ public class MainActivity extends AppCompatActivity
 
             adapter.notifyDataSetChanged();
             listview.setAdapter(adapter);
+
+
             //아이템 클릭시 그 네트워크의 ioT및 사용자를 관리할수있는 액티비티로 전환 및 값을 넘겨준다
             listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -175,9 +178,7 @@ public class MainActivity extends AppCompatActivity
 
             View nav_header_view = navigationView.getHeaderView(0);
             TextView title = (TextView)nav_header_view.findViewById(R.id.username);
-            TextView keyvalue = (TextView)nav_header_view.findViewById(R.id.keyvalue);
             title.setText(username);
-            keyvalue.setText(userkey);
         }
 
     }
@@ -227,9 +228,7 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_home) {
-            // Handle the camera action
-        }
+
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

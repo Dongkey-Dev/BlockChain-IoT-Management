@@ -25,6 +25,9 @@
             android:text="네트워크 생성"
             android:layout_weight="1"/>
 
+        <View
+            style="@style/Divider2"/>
+
         <Button
             android:id="@+id/NetworkfragmentButton2"
             android:layout_width="wrap_content"
@@ -34,6 +37,8 @@
             android:layout_weight="1"/>
 
     </LinearLayout>
+    <View
+        style="@style/Divider"/>
 
     <FrameLayout
         android:layout_width="match_parent"

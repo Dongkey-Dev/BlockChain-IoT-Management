@@ -24,15 +24,17 @@
         <Button
             android:id = "@+id/btn_control_list"
             android:layout_margin="10dp"
-            android:layout_width="100dp"
+            android:layout_width="wrap_content"
             android:layout_weight="1"
+            android:background="@color/colorPrimary"
             android:layout_height="match_parent"
             android:text = "조작내역 조회"/>
         <Button
             android:id = "@+id/btn_control_device"
-            android:layout_width="100dp"
+            android:layout_width="wrap_content"
             android:layout_margin="10dp"
             android:layout_weight="1"
+            android:background="@color/colorPrimary"
             android:layout_height="match_parent"
             android:text = "장치 조작하기"/>
 

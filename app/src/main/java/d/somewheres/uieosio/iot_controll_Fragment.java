@@ -24,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.w3c.dom.Text;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -133,11 +134,14 @@ public class iot_controll_Fragment extends Fragment {
         mCT.setMax(4800);
         mColor.setMax(360);
         mBrightness.setMax(100);
+        TextView bright_t = (TextView)v.findViewById(R.id.brightness_text);
+        TextView ct_t = (TextView)v.findViewById(R.id.ct_text);
+        TextView color_t = (TextView)v.findViewById(R.id.color_text);
 
         mBrightness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+                bright_t.setText(seekBar.getProgress());
             }
 
             @Override
@@ -160,7 +164,7 @@ public class iot_controll_Fragment extends Fragment {
         mCT.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+                ct_t.setText(seekBar.getProgress());
             }
 
             @Override
@@ -184,7 +188,7 @@ public class iot_controll_Fragment extends Fragment {
         mColor.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+                color_t.setText(seekBar.getProgress());
             }
 
             @Override

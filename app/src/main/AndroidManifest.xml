@@ -26,29 +26,23 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".Target_info_control_Activity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:name=".Target_info_control_Activity"/>
         <activity
             android:name=".IoT_manage_Activity"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
-            android:name=".user_Join_accept_Activity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:name=".user_Join_accept_Activity"/>
         <activity
-            android:name=".IoT_Select_Activity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:name=".IoT_Select_Activity"/>
         <activity
-            android:name=".Network_Create_Activity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:name=".Network_Create_Activity"/>
         <activity
-            android:name=".Create_Account_Activity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:name=".Create_Account_Activity"/>
         <activity
             android:name=".userManageActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".mijia_connect_Activity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:name=".mijia_connect_Activity"/>
         <activity
             android:name=".NetworkManageActivity"
             android:theme="@style/AppTheme.NoActionBar" />
