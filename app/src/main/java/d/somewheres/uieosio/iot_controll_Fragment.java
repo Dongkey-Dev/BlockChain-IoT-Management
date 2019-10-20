@@ -134,14 +134,12 @@ public class iot_controll_Fragment extends Fragment {
         mCT.setMax(4800);
         mColor.setMax(360);
         mBrightness.setMax(100);
-        TextView bright_t = (TextView)v.findViewById(R.id.brightness_text);
-        TextView ct_t = (TextView)v.findViewById(R.id.ct_text);
-        TextView color_t = (TextView)v.findViewById(R.id.color_text);
+
 
         mBrightness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                bright_t.setText(seekBar.getProgress());
+
             }
 
             @Override
@@ -164,7 +162,7 @@ public class iot_controll_Fragment extends Fragment {
         mCT.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                ct_t.setText(seekBar.getProgress());
+
             }
 
             @Override
@@ -188,7 +186,7 @@ public class iot_controll_Fragment extends Fragment {
         mColor.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                color_t.setText(seekBar.getProgress());
+
             }
 
             @Override
@@ -230,10 +228,8 @@ public class iot_controll_Fragment extends Fragment {
 
                 write = new write(parseSwitch(false));
                 write.start();
-                write = new write(parseSwitch(false));
-                write.start();
                 try {
-                    yeelight_launchar.yeelight_launchar(parseSwitch(true),networkname,name,context);
+                    yeelight_launchar.yeelight_launchar(parseSwitch(false),networkname,name,context);
                 } catch (ParseException e) {
                     System.out.println("예외발생");
                     e.printStackTrace();;
